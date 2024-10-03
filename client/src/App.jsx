@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Post from "./pages/Post";
 
 function Layout() {
   return (
@@ -22,6 +23,7 @@ const App = () => {
         <Route element={<Layout />}>
           <Route path="/" index element={<Navigate to="/home" />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/posts" element={<Post />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
