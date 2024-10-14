@@ -5,9 +5,32 @@ import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import Button from "./Button";
+// import { useEffect, useState } from "react";
 
 const Navbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
+  // const [loggedIn, setLoggedIn] = useState(false);
+  // const [username, setUsername] = useState(null);
+  // const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("user");
+
+  //   if (storedUser) {
+  //     setLoggedIn(true);
+  //     setUsername(JSON.parse(storedUser).username);
+  //   } else {
+  //     setLoggedIn(false);
+  //     setUsername(null);
+  //   }
+  // }, []);
+
+  // const handleLogout = () => {
+  //   localStorage.removeItem("user");
+  //   setLoggedIn(false);
+  //   setUsername(null);
+  //   navigate("/");
+  // };
 
   return (
     <div className="w-full h-[60px] bg-slate-900 text-white flex  items-center justify-center sticky top-0 left-0 right-0">
@@ -53,7 +76,7 @@ const Navbar = () => {
                   label="Logout"
                   icon={<MdOutlineLogout />}
                   className="text-sm bg-transparent px-4 py-1.5 text-white flex items-center justify-center gap-x-1.5 hover:bg-red-300 border-2 border-red-300 hover:border-red-300"
-                  onClick={logout}
+                  buttonHandler={logout}
                 />
               </>
             ) : (

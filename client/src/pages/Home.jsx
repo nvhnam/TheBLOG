@@ -9,8 +9,13 @@ import { FaArrowRight } from "react-icons/fa";
 import moment from "moment";
 import LatestPost from "../components/LatestPost.jsx";
 import getCategoriesForPost from "../utils/GetCategoriesForPost.js";
+import { useContext } from "react";
+import { AuthContext } from "../context/authContext.jsx";
 
 const Home = () => {
+  const { currentUser } = useContext(AuthContext);
+
+  // console.log(currentUser);
   return (
     <div className="w-full h-full bg-slate-50 flex justify-center">
       <div className="w-full h-full max-w-screen-xl flex flex-col items-center px-4">
@@ -18,12 +23,17 @@ const Home = () => {
         <div className="w-full h-1/6 flex flex-row items-end justify-between  border-b-2 border-b-slate-900 pb-3 mt-10">
           {/* <Link>Home</Link> */}
           <GetPath className="text-slate-900 font-light" />
-          <Link className="flex items-center justify-center gap-x-1.5 text-slate-600 hover:text-red-400 duration-300 ease-in-out">
-            <span className="text-sm font-semibold font-xlight">
-              Write a Post
-            </span>
-            <MdEditNote className="text-xl" />
-          </Link>
+          {currentUser && (
+            <Link
+              to="/write"
+              className="flex items-center justify-center gap-x-1.5 text-slate-600 hover:text-red-400 duration-300 ease-in-out"
+            >
+              <span className="text-sm font-semibold font-xlight">
+                Write a Post
+              </span>
+              <MdEditNote className="text-xl" />
+            </Link>
+          )}
         </div>
 
         {/* Lastest Post Feed */}

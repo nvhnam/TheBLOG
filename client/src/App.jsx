@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Post from "./pages/Post";
+import WritePost from "./pages/WritePost";
 
 function Layout() {
   return (
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="/" index element={<Navigate to="/home" />} />
           <Route path="/home" element={<Home />} />
           <Route path="/posts" element={<Post />} />
+          <Route path="/write" element={<WritePost />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
