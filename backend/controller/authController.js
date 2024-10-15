@@ -27,22 +27,28 @@ export const register = (req, res) => {
 export const login = (req, res) => {
   const q = "SELECT * FROM users WHERE email = ?";
 
-  db.query(q, [req.body.email], (err, data) => {
+  db.query(q, [req.body.email], async (err, data) => {
     if (err) return res.status(500).json(err);
     if (data.length === 0)
       return res.status(404).json("Information not found!");
-    const isPasswordCorrect = bcryptjs.compare(
-      req.body.password,
-      data[0].password
-    );
-    // console.log(req.body.password, data[0].password);
-    if (!isPasswordCorrect)
-      return res.status(400).json("Incorrect authentication information");
-    const token = jwt.sign({ id: data[0].id }, process.env.JWT_SECRET);
-    const { password, ...other } = data[0];
-    res
-      .cookie("access_cookie", token, { httpOnly: true })
-      .status(200)
-      .json(other);
+    try {
+      const isPasswordCorrect = await bcryptjs.compare(
+        req.body.password,
+        data[0].password
+      );
+
+      if (!isPasswordCorrect) {
+        return res.status(400).json("Incorrect authentication information");
+      }
+
+      const token = jwt.sign({ id: data[0].id }, process.env.JWT_SECRET);
+      const { password, ...other } = data[0];
+      res
+        .cookie("access_cookie", token, { httpOnly: true })
+        .status(200)
+        .json(other);
+    } catch (err) {
+      return res.status(500).json(err);
+    }
   });
 };
