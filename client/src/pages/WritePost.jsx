@@ -6,13 +6,14 @@ import Button from "../components/Button";
 import { AuthContext } from "../context/authContext";
 import axios from "axios";
 import moment from "moment";
+// import { useLocation } from "react-router-dom";
 
 const WritePost = () => {
+  // const state = useLocation().state;
   const [title, setTitle] = useState("");
   const [paragraph, setParagraph] = useState("");
   const [file, setFile] = useState(null);
   const [categories, setCategories] = useState([]);
-  // const [chosenCategory, setChosenCategory] = useState({});
   const [chosenCategoryIds, setChosenCategoryIds] = useState([]);
   const { currentUser } = useContext(AuthContext);
 
@@ -43,54 +44,51 @@ const WritePost = () => {
 
   // console.log(chosenCategoryIds);
 
+  const handleUpload = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await axios.post("http://localhost:8800/upload", formData);
+      // console.log(res.data);
+      return res.data;
+    } catch (error) {
+      console.log("Error handling upload");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const userId = currentUser.id;
-    const currentDateTime = moment().toISOString();
+    const currentDateTime = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+    const uploadedImg = await handleUpload();
+    // console.log(currentDateTime);
 
-    let base64File = null;
-
-    if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = () => {
-        base64File = reader.result;
-        submitPost(base64File);
-      };
-      reader.onerror = (error) => {
-        console.error("Error reading file:", error);
-      };
-    } else {
-      submitPost(base64File);
-    }
-
-    const submitPost = async (fileData) => {
-      const formData = {
-        title: title,
-        userId: userId,
-        body: paragraph,
-        created_at: currentDateTime,
-        img: fileData,
-      };
-
-      try {
-        const res = await axios.post("http://localhost:8800/posts/write", {
-          formData: formData,
-          categoriesId: chosenCategoryIds,
-        });
-
-        if (res.status === 200) {
-          setTitle("");
-          setParagraph("");
-          setFile(null);
-          setChosenCategoryIds([]);
-        } else {
-          console.log("Error submitting the form");
-        }
-      } catch (error) {
-        console.log(error);
-      }
+    const formData = {
+      title: title,
+      userId: userId,
+      body: paragraph,
+      created_at: currentDateTime,
+      img: file ? uploadedImg : "",
     };
+
+    try {
+      const res = await axios.post("http://localhost:8800/posts/write", {
+        formData: formData,
+        categoriesId: chosenCategoryIds,
+      });
+
+      if (res.status === 200) {
+        setTitle("");
+        setParagraph("");
+        setFile(null);
+        setChosenCategoryIds([]);
+        window.location.reload();
+      } else {
+        console.log("Error submitting the form");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const column = Math.ceil(categories.length / 2);
@@ -119,6 +117,7 @@ const WritePost = () => {
                   <span className="sr-only">Choose profile photo</span>
                   <input
                     type="file"
+                    name="file"
                     className="block w-full text-sm my-2 file:cursor-pointer text-slate-500
                     file:mr-4 file:py-2 file:px-5
                     file:rounded file:border-0
