@@ -98,7 +98,7 @@ const Home = () => {
                             </div>
                             <span className="text-sm text-slate-600">
                               {moment(post.created_at)
-                                .startOf("hours")
+                                .startOf("minutes")
                                 .fromNow()}
                             </span>
                           </div>

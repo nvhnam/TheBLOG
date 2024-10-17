@@ -35,5 +35,5 @@ app.use("/", categoriesRoutes);
 app.use("/posts", PostsRoutes);
 
 app.listen(PORT, () => {
-  console.log("Connected");
+  console.log(`Connected at ${PORT}`);
 });

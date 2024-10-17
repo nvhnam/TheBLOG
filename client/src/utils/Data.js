@@ -43,6 +43,10 @@ export const posts = [
   },
 ];
 
+export const defaultImg = {
+  img: "https://placehold.co/600x400",
+};
+
 export const users = [
   {
     id: 1,

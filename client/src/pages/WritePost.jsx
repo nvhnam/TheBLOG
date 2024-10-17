@@ -6,6 +6,7 @@ import Button from "../components/Button";
 import { AuthContext } from "../context/authContext";
 import axios from "axios";
 import moment from "moment";
+import RecentPosts from "../components/RecentPosts";
 // import { useLocation } from "react-router-dom";
 
 const WritePost = () => {
@@ -95,13 +96,13 @@ const WritePost = () => {
 
   return (
     <div className="w-full h-full bg-slate-100 flex justify-center">
-      <div className="w-full h-full max-w-screen-xl flex px-3 mb-36">
-        <div className="w-full h-full flex flex-col">
-          <h3 className="text-4xl mt-24 pl-2">Write something...</h3>
+      <div className="w-full h-full max-w-screen-xl flex flex-col px-3 mb-36">
+        <div className="w-full h-full flex flex-col items-center mb-12">
+          <h3 className="text-4xl mt-24">Write something...</h3>
           <div className="w-full h-full mt-14">
             <form
               onSubmit={handleSubmit}
-              className="w-2/4 h-100 p-5 shadow-2xl rounded-md flex flex-col gap-3"
+              className="w-3/4 h-100 p-5 shadow-2xl mx-auto rounded-md flex flex-col gap-3"
             >
               <input
                 type="text"
@@ -147,7 +148,7 @@ const WritePost = () => {
                     <option value="art">Art</option>
                   </select> */}
                   <p>Category: </p>
-                  <div className="flex w-100 justify-between items-center gap-2">
+                  <div className="flex w-100 justify-between items-center gap-3">
                     {Array.from({ length: column }).map((_, index) => (
                       <div key={index} className="flex flex-col">
                         {categories
@@ -174,7 +175,7 @@ const WritePost = () => {
                   </div>
                 </div>
               </div>
-              <div className="w-100 h-80">
+              <div className="w-100 h-96">
                 <textarea
                   placeholder="..."
                   className="bg-white border border-slate-300 placeholder-slate-400 rounded-md px-4 w-full h-full py-2 outline-none focus:ring-1 focus:ring-slate-600"
@@ -193,6 +194,7 @@ const WritePost = () => {
             </form>
           </div>
         </div>
+        <RecentPosts />
       </div>
     </div>
   );
