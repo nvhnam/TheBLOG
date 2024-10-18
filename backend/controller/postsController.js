@@ -66,7 +66,7 @@ export const getPosts = (req, res) => {
     if (err) {
       return res.status(500).json(err.message);
     }
-    console.log("backend: ", result);
+    // console.log("backend: ", result);
     return res.status(200).json(result);
   });
 };

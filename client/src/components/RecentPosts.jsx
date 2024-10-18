@@ -12,11 +12,11 @@ const RecentPosts = () => {
     const getPosts = async () => {
       try {
         const res = await axios.get("http://localhost:8800/posts/all");
-        console.log("Posts: ", res.data);
         const sortedPosts = res.data.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
         setRecentPosts(sortedPosts.slice(0, 8));
+        // console.log(recentPosts);
       } catch (error) {
         console.log("Error fecthing posts: ", error);
       }
