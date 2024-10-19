@@ -9,28 +9,6 @@ import Button from "./Button";
 
 const Navbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
-  // const [loggedIn, setLoggedIn] = useState(false);
-  // const [username, setUsername] = useState(null);
-  // const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   const storedUser = localStorage.getItem("user");
-
-  //   if (storedUser) {
-  //     setLoggedIn(true);
-  //     setUsername(JSON.parse(storedUser).username);
-  //   } else {
-  //     setLoggedIn(false);
-  //     setUsername(null);
-  //   }
-  // }, []);
-
-  // const handleLogout = () => {
-  //   localStorage.removeItem("user");
-  //   setLoggedIn(false);
-  //   setUsername(null);
-  //   navigate("/");
-  // };
 
   return (
     <div className="w-full h-[60px] bg-slate-900 text-white flex  items-center justify-center sticky top-0 left-0 right-0">
@@ -47,16 +25,28 @@ const Navbar = () => {
         {/* Links */}
         <div className="w-full h-full flex items-center ">
           <div className="w-full h-full flex items-center justify-center gap-x-20 p-3">
-            <Link className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 ">
+            <Link
+              to="/science"
+              className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 "
+            >
               Science
             </Link>
-            <Link className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 ">
+            <Link
+              to="/politic"
+              className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 "
+            >
               Politic
             </Link>
-            <Link className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 ">
+            <Link
+              to="/health"
+              className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 "
+            >
               Health
             </Link>
-            <Link className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 ">
+            <Link
+              to="/art"
+              className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 "
+            >
               Art
             </Link>
           </div>

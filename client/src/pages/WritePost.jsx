@@ -131,22 +131,6 @@ const WritePost = () => {
                 </label>
 
                 <div className="flex gap-x-4 w-100 h-100 p-2 items-center">
-                  {/* <label htmlFor="category">Category:</label>
-
-                  <select
-                    className="px-4 py-1 rounded-md border border-slate-300"
-                    name="category"
-                    id="category"
-                    value={chosenCategory}
-                    onChange={(e) => setChosenCategory(e.target.value)}
-                  >
-                    <option className="" value="science">
-                      Science
-                    </option>
-                    <option value="politic">Politic</option>
-                    <option value="health">Health</option>
-                    <option value="art">Art</option>
-                  </select> */}
                   <p>Category: </p>
                   <div className="flex w-100 justify-between items-center gap-3">
                     {Array.from({ length: column }).map((_, index) => (

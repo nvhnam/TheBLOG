@@ -15,6 +15,7 @@ import { defaultImg } from "../utils/Data.js";
 const Home = () => {
   const { currentUser } = useContext(AuthContext);
   const [groupedPosts, setGroupedPosts] = useState({});
+  const [latestPost, setLatestPost] = useState({});
 
   useEffect(() => {
     const getPosts = async () => {
@@ -23,6 +24,9 @@ const Home = () => {
         const sortedPosts = res.data.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
+
+        setLatestPost(sortedPosts[0]);
+        // console.log(latestPost);
 
         const postsByCategory = sortedPosts.reduce((acc, post) => {
           const category = post.category_name;
@@ -70,7 +74,7 @@ const Home = () => {
         </div>
 
         {/* Lastest Post Feed */}
-        <LatestPost />
+        <LatestPost latestPost={latestPost} />
 
         {/* Posts Feed */}
         <div className="w-full h-full justify-center items-center ">
@@ -83,7 +87,10 @@ const Home = () => {
                 <h1 className="text-slate-900 font-bold text-2xl">
                   {category}
                 </h1>
-                <Link className="flex justify-center items-center gap-1.5 text-base font-semibold text-red-500 hover:text-red-300 duration-300 ease-in-out">
+                <Link
+                  to={`/${category}`}
+                  className="flex justify-center items-center gap-1.5 text-base font-semibold text-red-500 hover:text-red-300 duration-300 ease-in-out"
+                >
                   See all
                   <FaArrowRight className="text-xs" />
                 </Link>
@@ -93,6 +100,7 @@ const Home = () => {
                   <Link
                     key={post.id}
                     className="flex flex-col gap-3 w-full h-full"
+                    to={`/post/${post.id}`}
                   >
                     <img
                       className="rounded-lg size-full object-cover max-h-48"

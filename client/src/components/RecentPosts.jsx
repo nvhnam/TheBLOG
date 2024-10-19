@@ -31,7 +31,11 @@ const RecentPosts = () => {
       </div>
       <div className="grid md:grid-cols-4 gap-10 w-full h-full mt-12 mb-14">
         {recentPosts.map((post) => (
-          <Link key={post.id} className="flex flex-col gap-3 w-full h-full">
+          <Link
+            to={`/post/${post.id}`}
+            key={post.id}
+            className="flex flex-col gap-3 w-full h-full"
+          >
             <img
               className="rounded-lg size-full object-cover max-h-48"
               src={post.image ? `../upload/${post.image}` : defaultImg.img}
