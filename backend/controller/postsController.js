@@ -71,11 +71,24 @@ export const getPosts = (req, res) => {
 };
 
 export const getPost = (req, res) => {
-  const postId = req.params.producId;
+  const postId = req.params.postId;
 
   const postQuery =
     "SELECT p.*, c.name AS category_name, u.username AS author_name, u.img AS author_img FROM posts p JOIN posts_categories pc ON p.id = pc.post_id JOIN categories c ON pc.category_id = c.id JOIN users u ON p.user_id = u.id WHERE p.id = ?";
   db.query(postQuery, [postId], (err, result) => {
+    if (err) {
+      return res.status(500).json(err.message);
+    }
+    return res.status(200).json(result);
+  });
+};
+
+export const getUserPosts = (req, res) => {
+  const userId = req.params.userId;
+  const q =
+    "SELECT p.*, c.name AS category_name, u.username AS author_name, u.img AS author_img FROM posts p JOIN posts_categories pc ON p.id = pc.post_id JOIN categories c ON pc.category_id = c.id JOIN users u ON p.user_id = u.id WHERE u.id = ?";
+
+  db.query(q, [userId], (err, result) => {
     if (err) {
       return res.status(500).json(err.message);
     }

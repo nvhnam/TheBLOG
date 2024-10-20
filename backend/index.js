@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import categoriesRoutes from "./routes/categoriesRoutes.js";
 import PostsRoutes from "./routes/PostsRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
 import multer from "multer";
 
 const app = express();
@@ -31,6 +32,8 @@ app.post("/upload", upload.single("file"), function (req, res) {
 app.use("/auth", authRoutes);
 
 app.use("/", categoriesRoutes);
+
+app.use("/profile", profileRoutes);
 
 app.use("/posts", PostsRoutes);
 

@@ -6,6 +6,6 @@ const router = Router();
 
 router.post("/write", write);
 router.get("/all", getPosts);
-router.get("/:producId", getPost);
+router.get("/:postId", getPost);
 
 export default router;

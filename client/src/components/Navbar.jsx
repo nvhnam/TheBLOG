@@ -58,10 +58,13 @@ const Navbar = () => {
           <div className="w-full h-full flex items-center justify-end">
             {currentUser ? (
               <>
-                <div className="flex items-center justify-center gap-x-2 mr-7 text-gray-300">
+                <Link
+                  to={`/profile/${currentUser.id}`}
+                  className="flex items-center justify-center gap-x-2 mr-7 text-gray-300"
+                >
                   <FaUser />
                   <span>{currentUser?.username}</span>
-                </div>
+                </Link>
                 <Button
                   label="Logout"
                   icon={<MdOutlineLogout />}

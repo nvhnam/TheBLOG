@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import Post from "./pages/Post";
 import WritePost from "./pages/WritePost";
 import PostCategories from "./pages/PostCategories";
+import Profile from "./pages/Profile";
 
 function Layout() {
   return (
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/post/:postId" element={<Post />} />
           <Route path="/write" element={<WritePost />} />
           <Route path="/:category" element={<PostCategories />} />
+          <Route path="/profile/:userId" element={<Profile />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
