@@ -12,6 +12,9 @@ import { AuthContext } from "../context/authContext.jsx";
 import axios from "axios";
 import { defaultImg } from "../utils/Data.js";
 
+const PORT = import.meta.env.VITE_API_PORT;
+const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
+
 const Home = () => {
   const { currentUser } = useContext(AuthContext);
   const [groupedPosts, setGroupedPosts] = useState({});
@@ -20,32 +23,41 @@ const Home = () => {
   useEffect(() => {
     const getPosts = async () => {
       try {
-        const res = await axios.get("http://localhost:8800/posts/all");
-        const sortedPosts = res.data.sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
-        );
-
-        setLatestPost(sortedPosts[0]);
-        // console.log(latestPost);
-
-        const postsByCategory = sortedPosts.reduce((acc, post) => {
-          const category = post.category_name;
-          if (!acc[category]) {
-            acc[category] = [];
+        const res = await axios.get(
+          `${URL || `http://localhost:${PORT}`}/posts/all`,
+          {
+            validateStatus: () => {
+              return true;
+            },
           }
-          acc[category].push(post);
+        );
+        if (res.status === 302) {
+          const sortedPosts = res.data.sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          );
 
-          return acc;
-        }, {});
+          setLatestPost(sortedPosts[0]);
+          console.log(latestPost);
 
-        const filteredPostsByCategory = Object.keys(postsByCategory)
-          .filter((category) => postsByCategory[category].length >= 4)
-          .reduce((acc, category) => {
-            acc[category] = postsByCategory[category];
+          const postsByCategory = sortedPosts.reduce((acc, post) => {
+            const category = post.category_name;
+            if (!acc[category]) {
+              acc[category] = [];
+            }
+            acc[category].push(post);
+
             return acc;
           }, {});
 
-        setGroupedPosts(filteredPostsByCategory);
+          const filteredPostsByCategory = Object.keys(postsByCategory)
+            .filter((category) => postsByCategory[category].length >= 4)
+            .reduce((acc, category) => {
+              acc[category] = postsByCategory[category];
+              return acc;
+            }, {});
+
+          setGroupedPosts(filteredPostsByCategory);
+        }
       } catch (error) {
         console.log("Error fecthing posts: ", error);
       }

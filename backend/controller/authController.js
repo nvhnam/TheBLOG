@@ -41,10 +41,21 @@ export const login = (req, res) => {
         return res.status(400).json("Incorrect authentication information");
       }
 
-      const token = jwt.sign({ id: data[0].id }, process.env.JWT_SECRET);
+      // const currentTime = moment().tz("Asia/Ho_Chi_Minh");
+      // const tokenExpiration = currentTime.add(1, "hour").unix();
+
+      const token = jwt.sign({ id: data[0].id }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
       const { password, ...other } = data[0];
+      // console.log("backend: ", token);
       res
-        .cookie("access_cookie", token, { httpOnly: true })
+        .cookie("access_cookie", token, {
+          httpOnly: true,
+          secure: false,
+          path: "/",
+          sameSite: "Lax",
+        })
         .status(200)
         .json(other);
     } catch (err) {

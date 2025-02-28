@@ -15,7 +15,9 @@ const Profile = () => {
 
   useEffect(() => {
     const getUserPosts = async () => {
-      const res = await axios.get(`http://localhost:8800/profile/${userId}`);
+      const res = await axios.get(`http://localhost:8800/profile/${userId}`, {
+        withCredentials: true,
+      });
       const sortedResults = res.data.sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
@@ -50,10 +52,12 @@ const Profile = () => {
               key={post.id}
               className="w-full h-fit flex flex-col justify-center items-center"
             >
-              <div className="w-full h-full flex items-center justify-center">
-                <p className="text-md  w-1/4 h-full flex items-center justify-center text-slate-600">
-                  {moment(post.created_at).startOf("minutes").fromNow()}
-                </p>
+              <div className="w-full h-full  flex items-center justify-center">
+                <div className="w-1/4 h-full  flex flex-col items-center justify-center">
+                  <p className="text-md w-full text-center h-full text-slate-600">
+                    {moment(post.created_at).startOf("minutes").fromNow()}
+                  </p>
+                </div>
                 <div className="w-2/3 bg-gray-50 shadow-xl gap-5 rounded-t-md  h-full flex flex-col justify-center items-center">
                   <div className="w-full h-full flex mt-4 p-3 gap-4">
                     <span className="size-24 w-1/3 h-full">
