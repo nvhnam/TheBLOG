@@ -5,17 +5,33 @@ import moment from "moment";
 import axios from "axios";
 import { defaultImg } from "../utils/Data";
 
+const PORT = import.meta.env.VITE_API_PORT;
+const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
+
+const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
+
 const RecentPosts = () => {
   const [recentPosts, setRecentPosts] = useState([]);
 
   useEffect(() => {
     const getPosts = async () => {
       try {
-        const res = await axios.get("http://localhost:8800/posts/all");
-        const sortedPosts = res.data.sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        const res = await axios.get(
+          `${URL || `http://localhost:${PORT}`}/posts/all`,
+          IS_SPRING && {
+            validateStatus: () => {
+              return true;
+            },
+          }
         );
-        setRecentPosts(sortedPosts.slice(0, 8));
+        if (res.status === 302) {
+          const sortedPosts = res.data.sort(
+            (a, b) =>
+              new Date(IS_SPRING ? b.createdAt : b.created_at) -
+              new Date(IS_SPRING ? a.createdAt : a.created_at)
+          );
+          setRecentPosts(sortedPosts.slice(0, 8));
+        }
         // console.log(recentPosts);
       } catch (error) {
         console.log("Error fecthing posts: ", error);
@@ -46,13 +62,25 @@ const RecentPosts = () => {
                 <span className="size-6">
                   <img
                     className="size-full rounded-full rounded object-cover"
-                    src={post.author_img ? post.author_img : defaultImg.img}
+                    src={
+                      IS_SPRING
+                        ? post.authorImg
+                          ? post.authorImg
+                          : defaultImg.img
+                        : post.author_img
+                        ? post.author_img
+                        : defaultImg.img
+                    }
                   />
                 </span>
-                <p className="text-sm text-slate-600">{post.author_name}</p>
+                <p className="text-sm text-slate-600">
+                  {IS_SPRING ? post.authorName : post.author_name}
+                </p>
               </div>
               <span className="text-sm text-slate-600">
-                {moment(post.created_at).startOf("minutes").fromNow()}
+                {moment(IS_SPRING ? post.createdAt : post.created_at)
+                  .startOf("minutes")
+                  .fromNow()}
               </span>
             </div>
             <div className="flex flex-col gap-3 justify-between h-full">
@@ -66,7 +94,7 @@ const RecentPosts = () => {
               </div>
 
               <span className="font-bold text-sm text-red-400">
-                {post.category_name}
+                {IS_SPRING ? post.categoryName : post.category_name}
               </span>
             </div>
           </Link>

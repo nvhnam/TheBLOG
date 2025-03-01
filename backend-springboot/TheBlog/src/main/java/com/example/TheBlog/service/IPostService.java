@@ -1,15 +1,18 @@
 package com.example.TheBlog.service;
 
 import com.example.TheBlog.model.Post;
+import com.example.TheBlog.model.PostResponseDTO;
 
 import java.util.List;
 
 public interface IPostService {
     Post addPost(Post post);
     List<Post> getAllPosts();
-    Post updatePost(Post post, Long id);
 
-    void deletePostById(Long id);
+    List<PostResponseDTO> getAllPostsWithAuthorAndCategory();
+    Post updatePost(Post post, Integer id);
 
-    Post getPostById(Long id);
+    void deletePostById(Integer id);
+
+    Post getPostById(Integer id);
 }

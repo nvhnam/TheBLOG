@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import moment from "moment";
 import { defaultImg } from "../utils/Data";
 
+const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
+
 const LatestPost = ({ latestPost }) => {
   return (
     <>
@@ -37,14 +39,18 @@ const LatestPost = ({ latestPost }) => {
                       className="size-full rounded-full rounded object-cover"
                       src={
                         latestPost.author_img
-                          ? `../upload/${latestPost.author_img}`
+                          ? `../upload/${
+                              IS_SPRING
+                                ? latestPost.authorImg
+                                : latestPost.author_img
+                            }`
                           : defaultImg.img
                       }
                       alt={latestPost.author_name + " image"}
                     />
                   </span>
                   <p className="text-md text-slate-600">
-                    {latestPost.author_name}
+                    {IS_SPRING ? latestPost.authorName : latestPost.author_name}
                   </p>
                 </div>
                 <div className="">
@@ -58,10 +64,14 @@ const LatestPost = ({ latestPost }) => {
                 <div className="flex flex-row justify-between pr-5">
                   <div className="flex gap-4 items-center">
                     <span className="font-bold text-red-400">
-                      {latestPost.category_name}
+                      {IS_SPRING
+                        ? latestPost.categoryName
+                        : latestPost.category_name}
                     </span>
                     <span className="text-sm text-slate-600">
-                      {moment(latestPost.created_at)
+                      {moment(
+                        IS_SPRING ? latestPost.createdAt : latestPost.created_at
+                      )
                         .startOf("minute")
                         .fromNow()}
                     </span>

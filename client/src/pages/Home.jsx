@@ -15,6 +15,8 @@ import { defaultImg } from "../utils/Data.js";
 const PORT = import.meta.env.VITE_API_PORT;
 const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
 
+const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
+
 const Home = () => {
   const { currentUser } = useContext(AuthContext);
   const [groupedPosts, setGroupedPosts] = useState({});
@@ -25,7 +27,7 @@ const Home = () => {
       try {
         const res = await axios.get(
           `${URL || `http://localhost:${PORT}`}/posts/all`,
-          {
+          IS_SPRING && {
             validateStatus: () => {
               return true;
             },
@@ -33,14 +35,16 @@ const Home = () => {
         );
         if (res.status === 302) {
           const sortedPosts = res.data.sort(
-            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+            (a, b) =>
+              new Date(IS_SPRING ? b.createdAt : b.created_at) -
+              new Date(IS_SPRING ? a.createdAt : a.created_at)
           );
 
           setLatestPost(sortedPosts[0]);
-          console.log(latestPost);
+          console.log("res.data: ", res.data);
 
           const postsByCategory = sortedPosts.reduce((acc, post) => {
-            const category = post.category_name;
+            const category = IS_SPRING ? post.categoryName : post.category_name;
             if (!acc[category]) {
               acc[category] = [];
             }
@@ -127,18 +131,24 @@ const Home = () => {
                           <img
                             className="size-full rounded-full rounded object-cover"
                             src={
-                              post.author_img
+                              IS_SPRING
+                                ? post.authorImg
+                                  ? `../upload/${post.authorImg}`
+                                  : defaultImg.img
+                                : post.author_img
                                 ? `../upload/${post.author_img}`
                                 : defaultImg.img
                             }
                           />
                         </span>
                         <p className="text-sm text-slate-600">
-                          {post.author_name}
+                          {IS_SPRING ? post.authorName : post.author_name}
                         </p>
                       </div>
                       <span className="text-sm text-slate-600">
-                        {moment(post.created_at).startOf("minutes").fromNow()}
+                        {moment(IS_SPRING ? post.createdAt : post.created_at)
+                          .startOf("minutes")
+                          .fromNow()}
                       </span>
                     </div>
                     <div className="flex flex-col gap-3 justify-between h-full">

@@ -6,6 +6,11 @@ import { defaultImg } from "../utils/Data";
 import moment from "moment";
 import RecentPosts from "../components/RecentPosts";
 
+const PORT = import.meta.env.VITE_API_PORT;
+const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
+
+const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
+
 const Post = () => {
   const [post, setPost] = useState(null);
   const { postId } = useParams();
@@ -13,8 +18,16 @@ const Post = () => {
   useEffect(() => {
     const getPost = async () => {
       try {
-        const res = await axios.get(`http://localhost:8800/posts/${postId}`);
-        setPost(res.data[0]);
+        const res = await axios.get(
+          `${URL || `http://localhost:${PORT}`}/posts/${postId}`,
+          IS_SPRING && {
+            validateStatus: () => {
+              return true;
+            },
+          }
+        );
+        setPost(res.data);
+        // console.log("post: ", res.data);
         window.scrollTo({
           top: 0,
           behavior: "smooth",
@@ -25,6 +38,8 @@ const Post = () => {
     };
     getPost();
   }, [postId]);
+
+  console.log("post: ", post);
 
   return (
     <div className="w-full h-full min-h-screen bg-slate-50 flex justify-center">
@@ -46,11 +61,19 @@ const Post = () => {
                 <span className="size-6">
                   <img
                     className="size-full rounded-full rounded object-cover"
-                    src={post.author_img ? post.author_img : defaultImg.img}
-                    alt={post.author_name}
+                    src={
+                      IS_SPRING
+                        ? post.authorImg
+                          ? post.authorImg
+                          : defaultImg.img
+                        : post.author_img
+                        ? post.author_img
+                        : defaultImg.img
+                    }
+                    alt={IS_SPRING ? post.authorName : post.author_name}
                   />
                 </span>
-                <h3>{post.author_name}</h3>
+                <h3>{IS_SPRING ? post.authorName : post.author_name}</h3>
               </div>
               <div>
                 <p>{moment(post.created_at).startOf("minutes").fromNow()}</p>
@@ -61,7 +84,7 @@ const Post = () => {
             </div>
             <div className="w-full px-3 mt-6 h-fit flex justify-end items-center">
               <p className="font-bold italic text-md text-red-400">
-                {post.category_name.toLowerCase()}
+                {IS_SPRING ? post.categoryName : post.category_name}
               </p>
             </div>
           </div>

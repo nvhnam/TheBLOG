@@ -1,6 +1,7 @@
 package com.example.TheBlog.controller;
 
 import com.example.TheBlog.model.Post;
+import com.example.TheBlog.model.PostResponseDTO;
 import com.example.TheBlog.service.IPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +23,23 @@ public class PostController {
         this.iPostService = iPostService;
     }
 
+//    @GetMapping("/all")
+//    public ResponseEntity<List<Post>> getAllPosts() {
+//        List<Post> posts = iPostS ervice.getAllPosts();
+//        System.out.println("getAllPosts: " + posts);
+//        return new ResponseEntity<>(posts, HttpStatus.FOUND);
+//    }
+
     @GetMapping("/all")
-    public ResponseEntity<List<Post>> getAllPosts() {
-        List<Post> posts = iPostService.getAllPosts();
-        System.out.println("getAllPosts: " + posts);
-        return new ResponseEntity<>(posts, HttpStatus.FOUND);
+    public ResponseEntity<List<PostResponseDTO>> getAllPostsWithAuthorAndCategory(){
+        List<PostResponseDTO> postResponseDTOS = iPostService.getAllPostsWithAuthorAndCategory();
+//        System.out.print("getAllPostsWithAuthorAndCategory: " + postResponseDTOS);
+        return new ResponseEntity<>(postResponseDTOS, HttpStatus.FOUND);
     }
 
     @GetMapping("/{id}")
-    public Post getPostById(@PathVariable Long id) {
+    @ResponseBody
+    public Post getPostById(@PathVariable("id") Integer id) {
         return iPostService.getPostById(id);
     }
 }

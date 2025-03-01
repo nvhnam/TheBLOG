@@ -1,5 +1,6 @@
 package com.example.TheBlog.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,12 +8,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 //@Getter
 //@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+//@NoArgsConstructor
+//@AllArgsConstructor
 @Table(name = "posts")
 public class Post {
 
@@ -22,7 +25,14 @@ public class Post {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
+
+    @ManyToMany
+    @JoinTable(name = "posts_categories",
+        joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories = new ArrayList<>();
 
     @Column(nullable = false)
     private String title;
@@ -30,7 +40,7 @@ public class Post {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String body;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
     @Column(nullable = true)
@@ -39,6 +49,18 @@ public class Post {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    public Post(Integer id, User user, List<Category> categories, String title, String body, LocalDateTime createdAt, String image) {
+        this.id = id;
+        this.user = user;
+        this.categories = categories;
+        this.title = title;
+        this.body = body;
+        this.createdAt = createdAt;
+        this.image = image;
+    }
+
+    public Post(){}
 
     public Integer getId() {
         return id;
