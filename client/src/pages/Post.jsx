@@ -19,7 +19,7 @@ const Post = () => {
     const getPost = async () => {
       try {
         const res = await axios.get(
-          `${URL || `http://localhost:${PORT}`}/posts/${postId}`,
+          `${URL || `http://localhost:${PORT}`}/posts/id/${postId}`,
           IS_SPRING && {
             validateStatus: () => {
               return true;

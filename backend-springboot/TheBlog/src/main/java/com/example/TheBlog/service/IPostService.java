@@ -13,6 +13,8 @@ public interface IPostService {
 
     List<PostResponseDTO> getAllPostsWithAuthorAndCategory();
 
+    List<PostResponseDTO> getAllPostsWithAuthorAndCategoryByCategory(String category);
+
     PostResponseDTO getPostWithAuthorAndCategoryById(Integer id);
     Post updatePost(Post post, Integer id);
 

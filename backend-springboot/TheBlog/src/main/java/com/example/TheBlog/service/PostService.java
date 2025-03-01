@@ -47,6 +47,12 @@ public class PostService implements IPostService{
     }
 
     @Override
+    public List<PostResponseDTO> getAllPostsWithAuthorAndCategoryByCategory(String category) {
+        List<Object[]> results = postRepository.findAllPostsWithAuthorAndCategoryByCategory(category);
+        return results.stream().map(this::mapToPostResponseDTO).toList();
+    }
+
+    @Override
     public PostResponseDTO getPostWithAuthorAndCategoryById(Integer id) {
         List<Object[]> results = postRepository.findPostWithAuthorAndCategoryById(id);
         Object[] row = results.get(0);

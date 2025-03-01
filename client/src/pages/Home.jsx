@@ -41,7 +41,7 @@ const Home = () => {
           );
 
           setLatestPost(sortedPosts[0]);
-          console.log("res.data: ", res.data);
+          // console.log("Home res.data: ", res.data);
 
           const postsByCategory = sortedPosts.reduce((acc, post) => {
             const category = IS_SPRING ? post.categoryName : post.category_name;

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@NoArgsConstructor
+//@NoArgsConstructor
 public class PostResponseDTO {
     private Integer id;
     private String title;
@@ -29,6 +29,7 @@ public class PostResponseDTO {
         this.authorImg = authorImg;
         this.categoryName = categoryName;
     }
+    public PostResponseDTO(){}
 
     public Integer getId() {
         return id;

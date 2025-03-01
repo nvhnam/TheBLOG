@@ -39,7 +39,7 @@ public class PostController {
         return new ResponseEntity<>(postResponseDTOS, HttpStatus.FOUND);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     @ResponseBody
     public ResponseEntity<PostResponseDTO> getPostWithAuthorAndCategoryById(@PathVariable("id") Integer id) {
 //        return iPostService.getPostById(id);
@@ -49,5 +49,11 @@ public class PostController {
         } catch (PostNotFoundException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<PostResponseDTO>> getAllPostsWithAuthorAndCategoryByCategory(@PathVariable("category") String category) {
+        List<PostResponseDTO> results = iPostService.getAllPostsWithAuthorAndCategoryByCategory(category);
+        return new ResponseEntity<>(results, HttpStatus.FOUND);
     }
 }

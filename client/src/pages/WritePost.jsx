@@ -9,6 +9,11 @@ import moment from "moment";
 import RecentPosts from "../components/RecentPosts";
 // import { useLocation } from "react-router-dom";
 
+const PORT = import.meta.env.VITE_API_PORT;
+const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
+
+const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
+
 const WritePost = () => {
   // const state = useLocation().state;
   const [title, setTitle] = useState("");
@@ -21,7 +26,14 @@ const WritePost = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:8800/categories");
+        const response = await axios.get(
+          `${URL || `http://localhost:${PORT}`}/categories/all`,
+          IS_SPRING && {
+            validateStatus: () => {
+              return true;
+            },
+          }
+        );
         // console.log(response.data);
         setCategories(response.data);
       } catch (error) {
