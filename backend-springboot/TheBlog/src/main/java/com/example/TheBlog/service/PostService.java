@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Service
 public class PostService implements IPostService{
@@ -45,6 +46,22 @@ public class PostService implements IPostService{
         return results.stream().map(this::mapToPostResponseDTO).toList();
     }
 
+    @Override
+    public PostResponseDTO getPostWithAuthorAndCategoryById(Integer id) {
+        List<Object[]> results = postRepository.findPostWithAuthorAndCategoryById(id);
+        Object[] row = results.get(0);
+        return new PostResponseDTO(
+                (Integer) row[0],
+                (String) row[1],
+                (String) row[2],
+                (String) row[3],
+                ((Timestamp) row[4]).toLocalDateTime(),
+                (String) row[5],
+                (String) row[6],
+                new ArrayList<>(List.of(String.valueOf(row[7])))
+        );
+    };
+
     private PostResponseDTO mapToPostResponseDTO(Object[] row) {
         return new PostResponseDTO(
                 (Integer) row[0],
@@ -54,8 +71,6 @@ public class PostService implements IPostService{
                 ((Timestamp) row[4]).toLocalDateTime(),
                 (String) row[5],
                 (String) row[6],
-//                (String) row[7]
-//                (List<String>) row[7]
                 new ArrayList<>(List.of(String.valueOf(row[7])))
         );
     }

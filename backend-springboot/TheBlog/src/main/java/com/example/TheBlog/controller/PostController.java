@@ -1,5 +1,6 @@
 package com.example.TheBlog.controller;
 
+import com.example.TheBlog.exception.PostNotFoundException;
 import com.example.TheBlog.model.Post;
 import com.example.TheBlog.model.PostResponseDTO;
 import com.example.TheBlog.service.IPostService;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin("http://localhost:5173")
 @RestController
@@ -39,7 +41,13 @@ public class PostController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public Post getPostById(@PathVariable("id") Integer id) {
-        return iPostService.getPostById(id);
+    public ResponseEntity<PostResponseDTO> getPostWithAuthorAndCategoryById(@PathVariable("id") Integer id) {
+//        return iPostService.getPostById(id);
+        try {
+            PostResponseDTO post  = iPostService.getPostWithAuthorAndCategoryById(id);
+            return new ResponseEntity<>(post, HttpStatus.FOUND);
+        } catch (PostNotFoundException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 }

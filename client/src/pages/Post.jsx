@@ -39,7 +39,7 @@ const Post = () => {
     getPost();
   }, [postId]);
 
-  console.log("post: ", post);
+  // console.log("post: ", post);
 
   return (
     <div className="w-full h-full min-h-screen bg-slate-50 flex justify-center">
