@@ -1,14 +1,45 @@
+/* eslint-disable no-unused-vars */
 // import React from "react";
 import { MdOutlineLogout, MdOutlineLogin } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import Button from "./Button";
-// import { useEffect, useState } from "react";
+import axios from "axios";
+
+const PORT = import.meta.env.VITE_API_PORT;
+const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
+
+const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
 const Navbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const getCategories = async () => {
+      try {
+        const res = await axios.get(
+          `${URL || `http://localhost:${PORT}`}/categories/all`,
+          IS_SPRING && {
+            validateStatus: () => {
+              return true;
+            },
+          }
+        );
+        // if (res.status === 302) {
+        setCategories(res.data);
+        // }
+      } catch (error) {
+        console.log("Error fetching navbar categories from client: ", error);
+      }
+    };
+
+    getCategories();
+  }, []);
+
+  // console.log("Navbar categories: ", categories);
 
   return (
     <div className="w-full h-[60px] bg-slate-900 text-white flex  items-center justify-center sticky top-0 left-0 right-0">
@@ -25,30 +56,15 @@ const Navbar = () => {
         {/* Links */}
         <div className="w-full h-full flex items-center ">
           <div className="w-full h-full flex items-center justify-center gap-x-20 p-3">
-            <Link
-              to="/science"
-              className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 "
-            >
-              Science
-            </Link>
-            <Link
-              to="/politic"
-              className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 "
-            >
-              Politic
-            </Link>
-            <Link
-              to="/health"
-              className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 "
-            >
-              Health
-            </Link>
-            <Link
-              to="/art"
-              className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 "
-            >
-              Art
-            </Link>
+            {categories.map((category) => (
+              <Link
+                key={category.id}
+                to={`/${category.name}`}
+                className="text-gray-300 hover:text-red-300 hover:border-b-red-300 hover:border-b-2 border-b-2 border-transparent p-2 hover:transition delay-100 "
+              >
+                {category.name}
+              </Link>
+            ))}
           </div>
         </div>
 
