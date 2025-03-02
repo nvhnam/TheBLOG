@@ -3,15 +3,19 @@ package com.example.TheBlog.controller;
 import com.example.TheBlog.exception.PostNotFoundException;
 import com.example.TheBlog.model.Post;
 import com.example.TheBlog.model.PostResponseDTO;
+import com.example.TheBlog.service.ICloudinaryService;
 import com.example.TheBlog.service.IPostService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin("${CLIENT_URL}")
 @RestController
@@ -19,10 +23,12 @@ import java.util.Optional;
 //@RequiredArgsConstructor
 public class PostController {
     private final IPostService iPostService;
+    private final ICloudinaryService iCloudinaryService;
 
     @Autowired
-    public PostController(IPostService iPostService) {
+    public PostController(IPostService iPostService, ICloudinaryService iCloudinaryService) {
         this.iPostService = iPostService;
+        this.iCloudinaryService = iCloudinaryService;
     }
 
 //    @GetMapping("/all")
@@ -55,5 +61,20 @@ public class PostController {
     public ResponseEntity<List<PostResponseDTO>> getAllPostsWithAuthorAndCategoryByCategory(@PathVariable("category") String category) {
         List<PostResponseDTO> results = iPostService.getAllPostsWithAuthorAndCategoryByCategory(category);
         return new ResponseEntity<>(results, HttpStatus.FOUND);
+    }
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Post> uploadPost(@RequestParam("title") String title,
+                                           @RequestParam("userId") Integer userId,
+                                           @RequestParam("body") String body,
+                                           @RequestParam("created_at")String createdAt,
+                                           @RequestParam("img") MultipartFile image,
+                                           @RequestParam("categoriesId") List<Integer> categoriesId) throws IOException {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime parsedCreatedAt = LocalDateTime.parse(createdAt, formatter);
+
+        Post post = iPostService.createPost(title, userId, body, parsedCreatedAt, image, categoriesId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

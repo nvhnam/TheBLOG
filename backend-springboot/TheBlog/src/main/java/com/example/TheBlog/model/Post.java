@@ -62,6 +62,7 @@ public class Post {
 
     public Post(){}
 
+
     public Integer getId() {
         return id;
     }
@@ -76,6 +77,14 @@ public class Post {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
     }
 
     public String getTitle() {

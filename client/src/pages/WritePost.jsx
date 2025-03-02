@@ -71,26 +71,49 @@ const WritePost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userId = currentUser.id;
     const currentDateTime = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
-    const uploadedImg = await handleUpload();
+    const userId = currentUser.id;
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("userId", userId);
+    formData.append("body", paragraph);
+    formData.append("created_at", currentDateTime);
+    if (file) {
+      formData.append("img", file);
+    }
+    chosenCategoryIds.forEach((cateID) => {
+      formData.append("categoriesId", cateID);
+    });
+    // formData.append("categoriesId", chosenCategoryIds);
+    // const uploadedImg = await handleUpload();
     // console.log(currentDateTime);
 
-    const formData = {
-      title: title,
-      userId: userId,
-      body: paragraph,
-      created_at: currentDateTime,
-      img: file ? uploadedImg : "",
-    };
+    // const formData = {
+    //   title: title,
+    //   userId: userId,
+    //   body: paragraph,
+    //   created_at: currentDateTime,
+    //   // img: file ? uploadedImg : "",
+    //   img: file,
+    //   categoriesId: chosenCategoryIds,
+    // };
+
+    console.log("Sending formData: ", formData);
 
     try {
-      const res = await axios.post("http://localhost:8800/posts/write", {
-        formData: formData,
-        categoriesId: chosenCategoryIds,
-      });
+      const res = await axios.post(
+        `${URL || `http://localhost:${PORT}`}/posts/upload`,
+        formData,
+        IS_SPRING && {
+          headers: {
+            "Content-Type": "multipart/form_data",
+          },
+          validateStatus: () => true,
+        }
+      );
 
-      if (res.status === 200) {
+      if (res.status === 201) {
         setTitle("");
         setParagraph("");
         setFile(null);

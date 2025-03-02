@@ -76,7 +76,11 @@ const Post = () => {
                 <h3>{IS_SPRING ? post.authorName : post.author_name}</h3>
               </div>
               <div>
-                <p>{moment(post.created_at).startOf("minutes").fromNow()}</p>
+                <p>
+                  {moment(IS_SPRING ? post.createdAt : post.created_at)
+                    .startOf("minutes")
+                    .fromNow()}
+                </p>
               </div>
             </div>
             <div className="w-full h-fit">
