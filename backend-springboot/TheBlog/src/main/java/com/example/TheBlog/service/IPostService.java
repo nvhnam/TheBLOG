@@ -19,6 +19,8 @@ public interface IPostService {
     List<PostResponseDTO> getAllPostsWithAuthorAndCategoryByCategory(String category);
 
     PostResponseDTO getPostWithAuthorAndCategoryById(Integer id);
+
+    PostResponseDTO getLatestPostWithAuthorAndCategory();
     Post updatePost(Post post, Integer id);
 
     void deletePostById(Integer id);

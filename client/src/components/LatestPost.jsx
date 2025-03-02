@@ -1,12 +1,39 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 // import React from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import { defaultImg } from "../utils/Data";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+const PORT = import.meta.env.VITE_API_PORT;
+const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
 
 const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
-const LatestPost = ({ latestPost }) => {
+const LatestPost = () => {
+  const [latestPost, setLatestPost] = useState(null);
+
+  useEffect(() => {
+    const getLatestPost = async () => {
+      const res = await axios.get(
+        `${URL || `http://localhost:${PORT}`}/posts/latest`,
+        IS_SPRING && {
+          validateStatus: () => {
+            return true;
+          },
+        }
+      );
+      // console.log("getLatestPost: ", res.data);
+      if (res.status === 302) {
+        setLatestPost(res.data);
+      }
+    };
+
+    getLatestPost();
+  }, []);
+
   return (
     <>
       {latestPost && (
@@ -21,7 +48,9 @@ const LatestPost = ({ latestPost }) => {
                   <img
                     className="w-full h-full rounded-lg object-cover"
                     src={
-                      latestPost.image
+                      IS_SPRING
+                        ? latestPost.image
+                        : latestPost.image
                         ? `../upload/${latestPost.image}`
                         : defaultImg.img
                     }

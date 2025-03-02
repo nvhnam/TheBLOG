@@ -75,7 +75,25 @@ public class PostService implements IPostService{
                 (String) row[6],
                 new ArrayList<>(List.of(String.valueOf(row[7])))
         );
-    };
+    }
+
+    @Override
+    public PostResponseDTO getLatestPostWithAuthorAndCategory() {
+        List<Object[]> results = postRepository.findLatestPostWithAuthorAndCategory();
+        Object[] row = results.get(0);
+        return new PostResponseDTO(
+                (Integer) row[0],
+                (String) row[1],
+                (String) row[2],
+                (String) row[3],
+                ((Timestamp) row[4]).toLocalDateTime(),
+                (String) row[5],
+                (String) row[6],
+                new ArrayList<>(List.of(String.valueOf(row[7])))
+        );
+    }
+
+    ;
 
     private PostResponseDTO mapToPostResponseDTO(Object[] row) {
         return new PostResponseDTO(

@@ -52,7 +52,13 @@ const Post = () => {
             <div className="w-full h-full">
               <img
                 className="mx-auto my-12 rounded-lg size-full object-cover max-w-3xl"
-                src={post.image ? `../upload/${post.image}` : defaultImg.img}
+                src={
+                  IS_SPRING
+                    ? post.image
+                    : post.image
+                    ? `../upload/${post.image}`
+                    : defaultImg.img
+                }
                 alt={post.title}
               />
             </div>

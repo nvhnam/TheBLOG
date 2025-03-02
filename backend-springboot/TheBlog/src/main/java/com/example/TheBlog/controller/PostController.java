@@ -57,6 +57,16 @@ public class PostController {
         }
     }
 
+    @GetMapping("/latest")
+    public ResponseEntity<PostResponseDTO> getLatestPostWithAuthorAndCategory() {
+        try {
+            PostResponseDTO post = iPostService.getLatestPostWithAuthorAndCategory();
+            return new ResponseEntity<>(post, HttpStatus.FOUND);
+        } catch (PostNotFoundException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/category/{category}")
     public ResponseEntity<List<PostResponseDTO>> getAllPostsWithAuthorAndCategoryByCategory(@PathVariable("category") String category) {
         List<PostResponseDTO> results = iPostService.getAllPostsWithAuthorAndCategoryByCategory(category);

@@ -40,6 +40,8 @@ const RecentPosts = () => {
     getPosts();
   }, []);
 
+  // console.log("RecentPost: ", recentPosts);
+
   return (
     <div className="w-full h-full flex flex-col items-center justify-center mt-20">
       <div className="w-full h-full">
@@ -54,7 +56,13 @@ const RecentPosts = () => {
           >
             <img
               className="rounded-lg size-full object-cover max-h-48"
-              src={post.image ? `../upload/${post.image}` : defaultImg.img}
+              src={
+                IS_SPRING
+                  ? post.image
+                  : post.image
+                  ? `../upload/${post.image}`
+                  : defaultImg.img
+              }
               alt={post.title}
             />
             <div className="flex items-center justify-between">

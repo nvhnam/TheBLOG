@@ -42,6 +42,7 @@ const Home = () => {
 
           setLatestPost(sortedPosts[0]);
           // console.log("Home res.data: ", res.data);
+          // console.log("Home latestPost: ", sortedPosts);
 
           const postsByCategory = sortedPosts.reduce((acc, post) => {
             const category = IS_SPRING ? post.categoryName : post.category_name;
@@ -121,7 +122,11 @@ const Home = () => {
                     <img
                       className="rounded-lg size-full object-cover max-h-48"
                       src={
-                        post.image ? `../upload/${post.image}` : defaultImg.img
+                        IS_SPRING
+                          ? post.image
+                          : post.image
+                          ? `../upload/${post.image}`
+                          : defaultImg.img
                       }
                       alt={post.title}
                     />
