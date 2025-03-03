@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../api/api";
 import { AuthContext } from "../context/authContext";
 
 const Login = () => {
@@ -15,7 +16,7 @@ const Login = () => {
 
   const [errors, setErrors] = useState(null);
 
-  const { login } = useContext(AuthContext);
+  const { setCurrentUser } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -26,8 +27,26 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(inputs);
-      navigate("/home");
+      // await login(inputs);
+      const res = await api.post("/auth/login", inputs, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+      console.log("Login res: ", res);
+      if (res.status === 200) {
+        console.log("Login res.data: ", res.data);
+        const userData = res.data;
+        setCurrentUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+
+        if (userData.token) {
+          localStorage.setItem("token", userData.token);
+        }
+
+        navigate("/home");
+      }
     } catch (error) {
       setErrors(error.response.data);
     }

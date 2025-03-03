@@ -3,7 +3,7 @@ package com.example.TheBlog.service;
 import com.example.TheBlog.exception.PostNotFoundException;
 import com.example.TheBlog.model.Category;
 import com.example.TheBlog.model.Post;
-import com.example.TheBlog.model.PostResponseDTO;
+import com.example.TheBlog.DTO.PostResponseDTO;
 import com.example.TheBlog.model.User;
 import com.example.TheBlog.repository.CategoryRepository;
 import com.example.TheBlog.repository.PostRepository;

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { createContext, useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 
 export const AuthContext = createContext();
 
@@ -10,13 +10,31 @@ export const AuthContextProvider = ({ children }) => {
   );
 
   const login = async (inputs) => {
-    const res = await axios.post("http://localhost:8800/auth/login", inputs);
-    setCurrentUser(res.data);
+    console.log("AuthContext inputs: ", inputs);
+
+    // const res = await api.post("/auth/login", inputs, {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Accept: "application/json",
+    //   },
+    // });
+
+    // console.log("AuthContext login res.data: ", res.data);
+    // const userData = res.data;
+    // setCurrentUser(userData);
+    // localStorage.setItem("user", JSON.stringify(userData));
+
+    // if (userData.token) {
+    //   localStorage.setItem("token", userData.token);
+    // }
+
+    // return userData;
   };
 
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   useEffect(() => {
@@ -24,7 +42,9 @@ export const AuthContextProvider = ({ children }) => {
   }, [currentUser]);
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, logout }}>
+    <AuthContext.Provider
+      value={{ currentUser, login, logout, setCurrentUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

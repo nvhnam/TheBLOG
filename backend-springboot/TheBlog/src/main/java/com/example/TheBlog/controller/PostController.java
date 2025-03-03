@@ -2,7 +2,7 @@ package com.example.TheBlog.controller;
 
 import com.example.TheBlog.exception.PostNotFoundException;
 import com.example.TheBlog.model.Post;
-import com.example.TheBlog.model.PostResponseDTO;
+import com.example.TheBlog.DTO.PostResponseDTO;
 import com.example.TheBlog.service.ICloudinaryService;
 import com.example.TheBlog.service.IPostService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -8,6 +8,7 @@ import Post from "./pages/Post";
 import WritePost from "./pages/WritePost";
 import PostCategories from "./pages/PostCategories";
 import Profile from "./pages/Profile";
+import Verify from "./pages/Verify";
 
 function Layout() {
   return (
@@ -33,6 +34,7 @@ const App = () => {
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/register/verify" element={<Verify />} />
       </Routes>
     </main>
   );

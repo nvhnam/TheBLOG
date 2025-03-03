@@ -1,4 +1,4 @@
-package com.example.TheBlog.model;
+package com.example.TheBlog.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
