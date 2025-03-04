@@ -22,8 +22,9 @@ public class ApplicationConfiguration {
     @Bean
     UserDetailsService userDetailsService(CustomUserDetailsService customUserDetailsService) {
         return customUserDetailsService;
-//                username -> userRepository.findByEmail(username)
-//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//                email -> userRepository.findByEmail(email)
+//                .or(() -> userRepository.findByUsername(email)) // Attempt both email and username
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found with identifier: " + email))
     }
 
     @Bean
@@ -43,7 +44,7 @@ public class ApplicationConfiguration {
         authProvider.setUserDetailsService(customUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
 
-        System.out.println("authProvider: " + authProvider);
+//        System.out.println("authProvider: " + authProvider);
 
         return authProvider;
     }

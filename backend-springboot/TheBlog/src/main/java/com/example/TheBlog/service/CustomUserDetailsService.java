@@ -19,13 +19,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 //        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Can't find user with email: " + email));
-        return userRepository.findByEmail(email)
-                .or(() -> userRepository.findByUsername(email)) // Attempt both email and username
+        return userRepository.findByUsername(email)
+                .or(() -> userRepository.findByEmail(email)) // Attempt both email and username
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with identifier: " + email));
     }
 
 //    @Bean
-//    public UserDetails loadUserByUsernamePost(String username) throws UsernameNotFoundException {
-//        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Can't find username: " + username));
-//    }
+    public UserDetails loadUserByUsernamePost(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Can't find username: " + username));
+    }
 }

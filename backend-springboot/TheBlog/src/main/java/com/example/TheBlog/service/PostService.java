@@ -9,6 +9,8 @@ import com.example.TheBlog.repository.CategoryRepository;
 import com.example.TheBlog.repository.PostRepository;
 import com.example.TheBlog.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,6 +48,7 @@ public class PostService implements IPostService{
     }
 
     @Override
+    @Cacheable("postCache")
     public List<PostResponseDTO> getAllPostsWithAuthorAndCategory() {
         List<Object[]> results = postRepository.findAllPostsWithAuthorAndCategory();
 //        System.out.println("getAllPostsWithAuthorAndCategory results: ");
@@ -56,6 +59,7 @@ public class PostService implements IPostService{
     }
 
     @Override
+    @Cacheable("postCache")
     public List<PostResponseDTO> getAllPostsWithAuthorAndCategoryByCategory(String category) {
         List<Object[]> results = postRepository.findAllPostsWithAuthorAndCategoryByCategory(category);
         return results.stream().map(this::mapToPostResponseDTO).toList();
@@ -124,6 +128,7 @@ public class PostService implements IPostService{
     }
 
     @Override
+    @CachePut(value = "postCache")
     public Post createPost(String title, Integer userId, String body, LocalDateTime createdAt, MultipartFile image, List<Integer> categoriesId) throws IOException {
         String imgUrl = iCloudinaryService.upload(image);
         System.out.println("Returned imgURL: " + imgUrl);

@@ -49,6 +49,16 @@ export const AuthContextProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem("user", JSON.stringify(currentUser));
+    // console.log("isUserAvailable: ", currentUser);
+    if (currentUser != null) {
+      const expireTime = new Date().getTime() + currentUser.expiresIn;
+      const currentTime = new Date().getTime();
+      console.log("expireTime: ", expireTime);
+      console.log("currentTime: ", currentTime);
+      if (currentTime >= parseInt(expireTime, 10)) {
+        logout();
+      }
+    }
   }, [currentUser]);
 
   return (

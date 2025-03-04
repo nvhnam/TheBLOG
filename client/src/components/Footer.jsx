@@ -21,7 +21,7 @@ const Footer = () => {
                 className="rounded-full border-2 border-white text-white px-1.5 py-1.5 hover:bg-white hover:text-slate-900 transition-all duration-200"
               />
             </Link>
-            <Link to="/">
+            <Link to="https://github.com/nvhnam">
               <Button
                 icon={<FaGithub />}
                 className="rounded-full border-2 border-white text-white px-1.5 py-1.5 hover:bg-white hover:text-slate-900 transition-all duration-200"

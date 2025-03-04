@@ -25,7 +25,7 @@ const PostCategories = () => {
             },
           }
         );
-        // console.log("PostCategories res.data: ", res.data);
+        console.log("PostCategories res.data: ", res.data);
         setPosts(res.data);
       } catch (error) {
         console.log("Error getting posts by category ", error);

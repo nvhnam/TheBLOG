@@ -42,6 +42,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             JOIN posts_categories pc ON p.id = pc.post_id
             JOIN categories c ON pc.category_id = c.id
             WHERE c.name = ? 
+            ORDER BY p.created_at DESC
             """, nativeQuery = true)
     List<Object[]> findAllPostsWithAuthorAndCategoryByCategory(String category);
 
