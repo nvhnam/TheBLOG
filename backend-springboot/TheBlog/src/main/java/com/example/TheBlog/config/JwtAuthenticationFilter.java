@@ -1,5 +1,6 @@
 package com.example.TheBlog.config;
 
+import com.example.TheBlog.service.CustomUserDetailsService;
 import com.example.TheBlog.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,15 +25,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
+//    private final UserDetailsService userDetailsService;
+
+    private final CustomUserDetailsService customUserDetailsService;
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
-            UserDetailsService userDetailsService,
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
-    ) {
+//            UserDetailsService userDetailsService,
+            CustomUserDetailsService customUserDetailsService,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver) {
         this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
+        this.customUserDetailsService = customUserDetailsService;
+//        this.userDetailsService = userDetailsService;
         this.handlerExceptionResolver = handlerExceptionResolver;
     }
 
@@ -44,6 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
 
+//        System.out.println("authHeader: " + authHeader);
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -51,12 +57,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             final String jwt = authHeader.substring(7);
+//            System.out.println("jwt: " + jwt);
             final String userEmail = jwtService.extractUsername(jwt);
+//            System.out.println("userEmail from jwt: " + userEmail);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (userEmail != null && authentication == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

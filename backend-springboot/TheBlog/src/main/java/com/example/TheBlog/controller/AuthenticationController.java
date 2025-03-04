@@ -8,7 +8,6 @@ import com.example.TheBlog.model.User;
 import com.example.TheBlog.repository.UserRepository;
 import com.example.TheBlog.service.AuthenticationService;
 import com.example.TheBlog.service.JwtService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,7 +36,7 @@ public class AuthenticationController {
     public ResponseEntity<LoginResponseDTO> authenticate(@RequestBody LoginUserDTO loginUserDto){
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
         String jwtToken = jwtService.generateToken(authenticatedUser);
-        LoginResponseDTO loginResponse = new LoginResponseDTO(authenticatedUser.getUsername(), jwtToken, jwtService.getExpirationTime());
+        LoginResponseDTO loginResponse = new LoginResponseDTO(authenticatedUser.getId(), authenticatedUser.getUsername(), jwtToken, jwtService.getExpirationTime());
         return new ResponseEntity<>(loginResponse, HttpStatus.OK);
     }
 

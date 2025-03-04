@@ -1,6 +1,7 @@
 package com.example.TheBlog.config;
 
 import com.example.TheBlog.repository.UserRepository;
+import com.example.TheBlog.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,9 +20,10 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    UserDetailsService userDetailsService(CustomUserDetailsService customUserDetailsService) {
+        return customUserDetailsService;
+//                username -> userRepository.findByEmail(username)
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Bean
@@ -35,10 +37,10 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    AuthenticationProvider authenticationProvider() {
+    AuthenticationProvider authenticationProvider(CustomUserDetailsService customUserDetailsService) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setUserDetailsService(customUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
 
         System.out.println("authProvider: " + authProvider);

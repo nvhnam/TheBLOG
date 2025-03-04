@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import { createContext, useEffect, useState } from "react";
-// import axios from "axios";
 
 export const AuthContext = createContext();
 
@@ -31,7 +30,18 @@ export const AuthContextProvider = ({ children }) => {
     // return userData;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // const res = await axios.post(
+    //   `${URL || `http://localhost:${PORT}`}/auth/logout`,
+    //   IS_SPRING && {
+    //     validateStatus: () => {
+    //       return true;
+    //     },
+    //     credentials: "include",
+    //   }
+    // );
+    // console.log("Logout res: ", res);
+
     setCurrentUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");

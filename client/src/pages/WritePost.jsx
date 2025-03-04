@@ -7,6 +7,7 @@ import { AuthContext } from "../context/authContext";
 import axios from "axios";
 import moment from "moment";
 import RecentPosts from "../components/RecentPosts";
+import api from "../api/api";
 // import { useLocation } from "react-router-dom";
 
 const PORT = import.meta.env.VITE_API_PORT;
@@ -102,8 +103,8 @@ const WritePost = () => {
     console.log("Sending formData: ", formData);
 
     try {
-      const res = await axios.post(
-        `${URL || `http://localhost:${PORT}`}/posts/upload`,
+      const res = await api.post(
+        `/posts/upload`,
         formData,
         IS_SPRING && {
           headers: {
