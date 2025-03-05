@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 // import React from "react";
@@ -17,7 +18,7 @@ const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
 
 const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
-const Home = () => {
+const Home = ({ setIsLoading }) => {
   const { currentUser } = useContext(AuthContext);
   const [groupedPosts, setGroupedPosts] = useState({});
   const [latestPost, setLatestPost] = useState({});
@@ -25,6 +26,7 @@ const Home = () => {
   useEffect(() => {
     const getPosts = async () => {
       try {
+        setIsLoading(true);
         const res = await axios.get(
           `${URL || `http://localhost:${PORT}`}/posts/all`,
           IS_SPRING && {
@@ -67,18 +69,21 @@ const Home = () => {
         }
       } catch (error) {
         console.log("Error fecthing posts: ", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     getPosts();
-  }, []);
+  }, [setIsLoading]);
 
   return (
-    <div className="w-full h-full bg-slate-50 flex justify-center">
-      <div className="w-full h-full max-w-screen-xl flex flex-col items-center px-4">
+    <div className="w-full h-full min-h-screen bg-slate-50 flex justify-center">
+      <div className="w-full h-full min-h-screen max-w-screen-xl flex flex-col items-center px-4">
         {/* Pagination + Write Post link */}
         <div className="w-full h-1/6 flex flex-row items-end justify-between  border-b-2 border-b-slate-900 pb-3 mt-10">
           {/* <Link>Home</Link> */}
           <GetPath className="text-slate-900 font-light" />
+
           {currentUser && (
             <Link
               to="/write"
@@ -93,7 +98,7 @@ const Home = () => {
         </div>
 
         {/* Lastest Post Feed */}
-        <LatestPost latestPost={latestPost} />
+        <LatestPost setIsLoading={setIsLoading} />
 
         {/* Posts Feed */}
         <div className="w-full h-full justify-center items-center ">

@@ -1,10 +1,11 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { createContext, useEffect, useState } from "react";
 import api from "../api/api";
 
 export const AuthContext = createContext();
 
-export const AuthContextProvider = ({ children }) => {
+export const AuthContextProvider = ({ children, setIsLoading }) => {
   const [currentUser, setCurrentUser] = useState(
     JSON.parse(localStorage.getItem("user") || null)
   );
@@ -32,20 +33,27 @@ export const AuthContextProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    const res = await api.post(`/auth/logout`, {
-      credentials: "include",
-      mode: "cors",
-    });
-    console.log("Logout res: ", res);
+    try {
+      setIsLoading(true);
+      const res = await api.post(`/auth/logout`, {
+        credentials: "include",
+        mode: "cors",
+      });
+      console.log("Logout res: ", res);
 
-    if (res.status === 200) {
-      setCurrentUser(null);
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-      window.alert(res.data);
-    } else {
-      console.log("Error logout");
-      window.alert(res.data);
+      if (res.status === 200) {
+        setCurrentUser(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        window.alert(res.data);
+      } else {
+        console.log("Error logout");
+        window.alert(res.data);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 

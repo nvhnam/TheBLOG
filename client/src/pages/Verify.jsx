@@ -6,7 +6,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import api from "../api/api.js";
 
-const Verify = () => {
+const Verify = ({ setIsLoading }) => {
   const location = useLocation();
   const email = location.state?.email;
 
@@ -23,6 +23,7 @@ const Verify = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       console.log("Verification code inputs: ", {
         email: email,
         verificationCode: inputs.code,
@@ -38,12 +39,15 @@ const Verify = () => {
       }
     } catch (error) {
       setErrors(error.response?.data?.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleResendCode = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       const res = await api.post("/auth/resend", email, {
         headers: {
           "Content-Type": "text/plain",
@@ -56,6 +60,8 @@ const Verify = () => {
       }
     } catch (error) {
       setErrors(error.response?.data?.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 

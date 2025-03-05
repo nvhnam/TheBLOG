@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 // import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -5,7 +6,7 @@ import Button from "../components/Button";
 import InputBox from "../components/InputBox";
 import api from "../api/api.js";
 
-const Register = () => {
+const Register = ({ setIsLoading }) => {
   const [inputs, setInputs] = useState({
     email: "",
     username: "",
@@ -25,6 +26,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       const res = await api.post("/auth/signup", inputs, {
         credentials: "include",
         mode: "cors",
@@ -35,23 +37,24 @@ const Register = () => {
       }
     } catch (error) {
       setErrors(error.response.data);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center w-full h-screen bg-slate-900">
-      <div className="w-full max-w-screen-xl h-screen flex flex-col justify-center items-center gap-y-5">
+    <div className="flex flex-col justify-center items-center w-full min-h-screen bg-slate-900 px-4">
+      <div className="w-full max-w-screen-xl flex flex-col justify-center items-center gap-y-6">
         {/* Title */}
-        <div className="w-full flex flex-col justify-center items-center">
-          <h1 className="text-center text-white text-3xl tracking-widest">
-            REGISTER
-          </h1>
-        </div>
+        <h1 className="text-center text-white text-3xl md:text-4xl tracking-widest">
+          REGISTER
+        </h1>
 
         {/* Form */}
-        <div className="md:w-1/3 h-auto flex flex-col justify-center items-center p-4">
-          <form className="w-full h-full flex flex-col justify-center items-center rounded gap-y-3 bg-slate-200 shadow-lg px-5 pt-8 pb-5">
-            <div className="gap-y-4 w-full h-full flex flex-col px-5">
+        <div className="w-full sm:w-2/3 md:w-1/3 flex flex-col justify-center items-center p-4">
+          <form className="w-full flex flex-col items-center rounded-lg gap-y-6 bg-slate-200 shadow-lg px-6 pt-8 pb-6">
+            {/* Input Fields */}
+            <div className="w-full flex flex-col gap-y-4 px-2">
               <InputBox
                 placeholder="example@mail.com"
                 name="email"
@@ -64,7 +67,7 @@ const Register = () => {
                 placeholder="your username"
                 name="username"
                 label="Username"
-                type="username"
+                type="text"
                 error={errors}
                 inputHandler={handleChange}
               />
@@ -77,18 +80,22 @@ const Register = () => {
                 inputHandler={handleChange}
               />
             </div>
-            <div className="w-full flex flex-col px-5 pt-4 pb-1">
+
+            {/* Submit Button */}
+            <div className="w-full px-4">
               <Button
                 label="Create"
-                className="bg-green-400 text-white hover:bg-slate-300 hover:outline-slate-900 hover:text-slate-900"
+                className="w-full bg-green-400 text-white font-semibold py-2 rounded-md transition-all hover:bg-green-500 hover:shadow-md"
                 buttonHandler={handleSubmit}
               />
             </div>
-            <span className="text-sm">
-              Already have account? Click
+
+            {/* Login Link */}
+            <span className="text-sm text-gray-700">
+              Already have an account? Click
               <Link
                 to="/login"
-                className="cursor-pointer italic text-blue-400 font-semibold underline ml-1 hover:text-blue-300 hover:no-underline"
+                className="ml-1 text-blue-500 font-semibold underline hover:text-blue-400 hover:no-underline"
               >
                 here
               </Link>

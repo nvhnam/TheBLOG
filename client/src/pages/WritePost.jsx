@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 // import React from "react";
 
@@ -15,7 +16,7 @@ const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
 
 const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
-const WritePost = () => {
+const WritePost = ({ setIsLoading }) => {
   // const state = useLocation().state;
   const [title, setTitle] = useState("");
   const [paragraph, setParagraph] = useState("");
@@ -72,103 +73,115 @@ const WritePost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const currentDateTime = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
-    const userId = currentUser.id;
-
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("userId", userId);
-    formData.append("body", paragraph);
-    formData.append("created_at", currentDateTime);
-    if (file) {
-      formData.append("img", file);
-    }
-    chosenCategoryIds.forEach((cateID) => {
-      formData.append("categoriesId", cateID);
-    });
-    // formData.append("categoriesId", chosenCategoryIds);
-    // const uploadedImg = await handleUpload();
-    // console.log(currentDateTime);
-
-    // const formData = {
-    //   title: title,
-    //   userId: userId,
-    //   body: paragraph,
-    //   created_at: currentDateTime,
-    //   // img: file ? uploadedImg : "",
-    //   img: file,
-    //   categoriesId: chosenCategoryIds,
-    // };
-
-    console.log("Sending formData: ", formData);
-
     try {
-      const res = await api.post(
-        `/posts/upload`,
-        formData,
-        IS_SPRING && {
-          headers: {
-            "Content-Type": "multipart/form_data",
-          },
-          validateStatus: () => true,
-        }
-      );
+      setIsLoading(true);
+      const currentDateTime = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+      const userId = currentUser.id;
 
-      if (res.status === 201) {
-        setTitle("");
-        setParagraph("");
-        setFile(null);
-        setChosenCategoryIds([]);
-        window.location.reload();
-      } else {
-        console.log("Error submitting the form");
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("userId", userId);
+      formData.append("body", paragraph);
+      formData.append("created_at", currentDateTime);
+      if (file) {
+        formData.append("img", file);
+      }
+      chosenCategoryIds.forEach((cateID) => {
+        formData.append("categoriesId", cateID);
+      });
+      // formData.append("categoriesId", chosenCategoryIds);
+      // const uploadedImg = await handleUpload();
+      // console.log(currentDateTime);
+
+      // const formData = {
+      //   title: title,
+      //   userId: userId,
+      //   body: paragraph,
+      //   created_at: currentDateTime,
+      //   // img: file ? uploadedImg : "",
+      //   img: file,
+      //   categoriesId: chosenCategoryIds,
+      // };
+
+      console.log("Sending formData: ", formData);
+
+      try {
+        const res = await api.post(
+          `/posts/upload`,
+          formData,
+          IS_SPRING && {
+            headers: {
+              "Content-Type": "multipart/form_data",
+            },
+            validateStatus: () => true,
+          }
+        );
+
+        if (res.status === 201) {
+          setTitle("");
+          setParagraph("");
+          setFile(null);
+          setChosenCategoryIds([]);
+          window.location.reload();
+        } else {
+          console.log("Error submitting the form");
+        }
+      } catch (error) {
+        console.log(error);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const column = Math.ceil(categories.length / 2);
 
   return (
-    <div className="w-full h-full bg-slate-100 flex justify-center">
-      <div className="w-full h-full max-w-screen-xl flex flex-col px-3 mb-36">
-        <div className="w-full h-full flex flex-col items-center mb-12">
-          <h3 className="text-4xl mt-24">Write something...</h3>
-          <div className="w-full h-full mt-14">
+    <div className="w-full min-h-screen bg-slate-100 flex justify-center px-4">
+      <div className="w-full max-w-screen-xl flex flex-col px-3 mb-36">
+        {/* Title Section */}
+        <div className="w-full flex flex-col items-center mb-12">
+          <h3 className="text-3xl md:text-4xl mt-20 md:mt-24 font-semibold">
+            Write something...
+          </h3>
+
+          {/* Form Container */}
+          <div className="w-full mt-10">
             <form
               onSubmit={handleSubmit}
-              className="w-3/4 h-100 p-5 shadow-2xl mx-auto rounded-md flex flex-col gap-3"
+              className="w-full sm:w-full md:w-3/4 lg:w-2/3 p-6 shadow-2xl mx-auto rounded-lg flex flex-col gap-y-6 bg-white"
             >
+              {/* Title Input */}
               <input
                 type="text"
-                className="px-4 py-3 outline-none rounded-md w-full mt-3 bg-white border border-slate-300 placeholder-slate-400 focus:ring-1 focus:ring-slate-600"
+                className="px-4 py-3 rounded-md w-full bg-white border border-slate-300 placeholder-slate-400 focus:ring-2 focus:ring-slate-500 outline-none"
                 placeholder="Title"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
 
-              <div className="flex w-100 justify-between items-center">
-                <label className="block">
+              {/* File Upload */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <label className="block w-full sm:w-auto">
                   <span className="sr-only">Choose profile photo</span>
                   <input
                     type="file"
                     name="file"
-                    className="block w-full text-sm my-2 file:cursor-pointer text-slate-500
-                    file:mr-4 file:py-2 file:px-5
-                    file:rounded file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-red-50 file:text-red-700
-                    hover:file:bg-red-100
-                  "
+                    className="block w-full sm:w-auto text-sm file:cursor-pointer text-slate-500
+                  file:mr-4 file:py-2 file:px-5 file:rounded file:border-0
+                  file:text-sm file:font-semibold file:bg-red-50 file:text-red-700
+                  hover:file:bg-red-100"
                     onChange={(e) => setFile(e.target.files[0])}
                   />
                 </label>
 
-                <div className="flex gap-x-4 w-100 h-100 p-2 items-center">
-                  <p>Category: </p>
-                  <div className="flex w-100 justify-between items-center gap-3">
+                {/* Categories Section */}
+                <div className="flex flex-col gap-3">
+                  <p className="font-medium">Category:</p>
+                  <div className="flex flex-wrap gap-4">
                     {Array.from({ length: column }).map((_, index) => (
                       <div key={index} className="flex flex-col">
                         {categories
@@ -195,25 +208,30 @@ const WritePost = () => {
                   </div>
                 </div>
               </div>
-              <div className="w-100 h-96">
+              {/* Paragraph Input */}
+              <div className="h-60">
                 <textarea
-                  placeholder="..."
-                  className="bg-white border border-slate-300 placeholder-slate-400 rounded-md px-4 w-full h-full py-2 outline-none focus:ring-1 focus:ring-slate-600"
+                  placeholder="Write here..."
+                  className="w-full h-full bg-white border border-slate-300 placeholder-slate-400 rounded-md px-4 py-3 outline-none focus:ring-2 focus:ring-slate-500"
                   required
                   value={paragraph}
                   onChange={(e) => setParagraph(e.target.value)}
                 />
               </div>
-              <div className="w-full h-full flex justify-end mt-3 px-2">
+
+              {/* Submit Button */}
+              <div className="flex justify-end">
                 <Button
                   label="Submit"
-                  className="text-white bg-slate-700 px-5 h-fit"
+                  className="bg-slate-700 text-white px-6 py-2 rounded-md hover:bg-slate-800 transition-all"
                   type="submit"
                 />
               </div>
             </form>
           </div>
         </div>
+
+        {/* Recent Posts */}
         <RecentPosts />
       </div>
     </div>

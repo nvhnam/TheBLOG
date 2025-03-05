@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -10,13 +11,14 @@ const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
 
 const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
-const PostCategories = () => {
+const PostCategories = ({ setIsLoading }) => {
   const { category } = useParams();
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const getPostsByCategory = async () => {
       try {
+        setIsLoading(true);
         const res = await axios.get(
           `${URL || `http://localhost:${PORT}`}/posts/category/${category}`,
           IS_SPRING && {
@@ -29,10 +31,12 @@ const PostCategories = () => {
         setPosts(res.data);
       } catch (error) {
         console.log("Error getting posts by category ", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     getPostsByCategory();
-  }, [category]);
+  }, [category, setIsLoading]);
 
   // console.log("Params category: ", category);
 
