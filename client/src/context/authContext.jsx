@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { createContext, useEffect, useState } from "react";
+import api from "../api/api";
 
 export const AuthContext = createContext();
 
@@ -31,20 +32,16 @@ export const AuthContextProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    // const res = await axios.post(
-    //   `${URL || `http://localhost:${PORT}`}/auth/logout`,
-    //   IS_SPRING && {
-    //     validateStatus: () => {
-    //       return true;
-    //     },
-    //     credentials: "include",
-    //   }
-    // );
-    // console.log("Logout res: ", res);
+    const res = await api.post(`/auth/logout`);
+    console.log("Logout res: ", res);
 
-    setCurrentUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    if (res.status === 200) {
+      setCurrentUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+    } else {
+      console.log("Error logout");
+    }
   };
 
   useEffect(() => {

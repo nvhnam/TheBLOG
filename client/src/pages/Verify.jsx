@@ -34,6 +34,7 @@ const Verify = () => {
       console.log("Verify res: ", res);
       if (res.status === 201) {
         navigate("/login");
+        window.alert(res.data);
       }
     } catch (error) {
       setErrors(error.response?.data?.message);
@@ -43,11 +44,16 @@ const Verify = () => {
   const handleResendCode = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/auth/resend");
-      // console.log("Register res: ", res);
-      // if (res.status === 201) {
-      //   navigate("/register/verify", { state: { email: inputs.email } });
-      // }
+      const res = await api.post("/auth/resend", email, {
+        headers: {
+          "Content-Type": "text/plain",
+        },
+      });
+      console.log("Resend code res: ", res);
+      if (res.status === 200) {
+        navigate("/register/verify", { state: { email: email } });
+        window.alert(res.data);
+      }
     } catch (error) {
       setErrors(error.response?.data?.message);
     }
