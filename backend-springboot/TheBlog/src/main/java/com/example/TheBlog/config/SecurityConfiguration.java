@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -23,6 +24,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -45,21 +47,26 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//                .cors()
+//                .and()
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         .requestMatchers("/posts/**").permitAll()
                         .requestMatchers("/categories/**").permitAll()
                         .requestMatchers("/posts/upload").authenticated()
                 )
-                .logout(logout -> logout
-                        .logoutUrl("/auth/logout")
-                        .addLogoutHandler(new SecurityContextLogoutHandler())
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            response.setStatus(HttpServletResponse.SC_OK);
-                        })
-                )
+//                .addFilter(corsFilterForLogout())
+//                .logout(
+//                        logout -> {
+//                                logout
+////                                .logoutUrl("/auth/logout")
+//                                .addLogoutHandler(new SecurityContextLogoutHandler())
+//                                .logoutSuccessHandler((request, response, authentication) -> {
+//                                    response.setStatus(HttpServletResponse.SC_OK);
+//                                }).permitAll();
+//                        }
+//                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -69,33 +76,45 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    @Bean
-    public FilterRegistrationBean<CorsFilter> corsFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173", "${CLIENT_URL}"));
-        config.setAllowedMethods(List.of("POST", "GET", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-
-        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return bean;
-    }
+//    @Bean
+//    public CorsFilter corsFilterForLogout() {
+//        CorsConfiguration config = new CorsConfiguration();
+//        config.setAllowedOrigins(List.of("${CLIENT_URL}", "${BACKEND_URL}", "http://localhost:8080", "http://localhost:5173"));
+//        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+//        config.setAllowCredentials(true);
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/auth/logout", config);
+//
+//        return new CorsFilter(source);
+//    }
+//
+//    @Bean
+//    public CorsFilter corsFilter() {
+//        CorsConfiguration config = new CorsConfiguration();
+//        config.setAllowedOrigins(List.of("${CLIENT_URL}", "${BACKEND_URL}", "http://localhost:8080", "http://localhost:5173*"));
+//        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+////        config.setAllowCredentials(true);
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", config);
+//
+//        return new CorsFilter(source);
+//    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("${CLIENT_URL}", "${BACKEND_URL}", "http://localhost:8080/", "http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("${CLIENT_URL}", "${BACKEND_URL}", "http://localhost:8080", "http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        source.registerCorsConfiguration("/auth/**", configuration);
+
         return source;
     }
 }

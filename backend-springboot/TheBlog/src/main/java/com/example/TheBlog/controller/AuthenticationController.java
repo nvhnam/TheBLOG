@@ -8,9 +8,13 @@ import com.example.TheBlog.model.User;
 import com.example.TheBlog.repository.UserRepository;
 import com.example.TheBlog.service.AuthenticationService;
 import com.example.TheBlog.service.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -38,6 +42,17 @@ public class AuthenticationController {
         String jwtToken = jwtService.generateToken(authenticatedUser);
         LoginResponseDTO loginResponse = new LoginResponseDTO(authenticatedUser.getId(), authenticatedUser.getUsername(), jwtToken, jwtService.getExpirationTime());
         return new ResponseEntity<>(loginResponse, HttpStatus.OK);
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> loggingOut(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+        if (authentication != null) {
+            SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+            logoutHandler.logout(request, response, authentication);
+            return new ResponseEntity<>("Logout successfully", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Logout unsuccessfully", HttpStatus.UNAUTHORIZED);
     }
 
     @PostMapping("/verify")

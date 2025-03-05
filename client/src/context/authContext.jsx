@@ -32,15 +32,20 @@ export const AuthContextProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    const res = await api.post(`/auth/logout`);
+    const res = await api.post(`/auth/logout`, {
+      credentials: "include",
+      mode: "cors",
+    });
     console.log("Logout res: ", res);
 
     if (res.status === 200) {
       setCurrentUser(null);
       localStorage.removeItem("user");
       localStorage.removeItem("token");
+      window.alert(res.data);
     } else {
       console.log("Error logout");
+      window.alert(res.data);
     }
   };
 
