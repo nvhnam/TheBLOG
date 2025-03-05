@@ -25,7 +25,10 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/auth/signup", inputs);
+      const res = await api.post("/auth/signup", inputs, {
+        credentials: "include",
+        mode: "cors",
+      });
       console.log("Register res: ", res);
       if (res.status === 201) {
         navigate("/register/verify", { state: { email: inputs.email } });

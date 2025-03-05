@@ -33,6 +33,8 @@ const Login = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+        credentials: "include",
+        mode: "cors",
       });
       console.log("Login res: ", res);
       if (res.status === 200) {

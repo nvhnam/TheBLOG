@@ -31,6 +31,8 @@ const Home = () => {
             validateStatus: () => {
               return true;
             },
+            credentials: "include",
+            mode: "cors",
           }
         );
         if (res.status === 302) {
