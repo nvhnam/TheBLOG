@@ -33,7 +33,7 @@ const Verify = () => {
       });
       console.log("Verify res: ", res);
       if (res.status === 201) {
-        navigate("/");
+        navigate("/login");
       }
     } catch (error) {
       setErrors(error.response?.data?.message);
