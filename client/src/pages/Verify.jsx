@@ -32,8 +32,8 @@ const Verify = () => {
         verificationCode: inputs.code,
       });
       console.log("Verify res: ", res);
-      if (res.status === 200) {
-        navigate("/login");
+      if (res.status === 201) {
+        navigate("/");
       }
     } catch (error) {
       setErrors(error.response?.data?.message);

@@ -35,7 +35,7 @@ public class AuthenticationService {
     }
 
     public User signup(RegisterUserDTO input) {
-        User user = new User(input.getUsername(), input.getEmail(), null, passwordEncoder.encode(input.getPassword()));
+        User user = new User(input.getEmail(), input.getUsername(), passwordEncoder.encode(input.getPassword()), null);
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         user.setEnabled(false);
@@ -113,6 +113,7 @@ public class AuthenticationService {
                 + "</html>";
 
         try {
+            System.out.println("user.getEmail(): " + user.getEmail());
             emailService.sendVerificationEmail(user.getEmail(), subject, htmlMessage);
         } catch (MessagingException e) {
             e.printStackTrace();
