@@ -25,7 +25,7 @@ const App = () => {
     <main>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" index element={<Navigate to="/home" />} />
+          <Route index element={<Navigate to="/home" />} />
           <Route path="/home" element={<Home />} />
           <Route path="/post/:postId" element={<Post />} />
           <Route path="/write" element={<WritePost />} />
