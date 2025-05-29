@@ -62,12 +62,12 @@ const App = () => {
               path="/:category"
               element={<PostCategories setIsLoading={setIsLoading} />}
             />
-            <Route path="/profile/:userId" element={<Profile />} />
+            <Route
+              path="/profile/:userId"
+              element={<Profile setIsLoading={setIsLoading} />}
+            />
           </Route>
-          <Route
-            path="/login"
-            element={<Login setIsLoading={setIsLoading} />}
-          />
+          <Route path="/login" element={<Login />} />
           <Route
             path="/register"
             element={<Register setIsLoading={setIsLoading} />}

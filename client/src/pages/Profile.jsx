@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 // import React from "react";
 
@@ -13,26 +14,33 @@ const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
 
 const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
-const Profile = () => {
+const Profile = ({ setIsLoading }) => {
   const [userPosts, setUserPosts] = useState([]);
   const { userId } = useParams();
   const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
     const getUserPosts = async () => {
-      const res = await axios.get(
-        `${URL || `http://localhost:${PORT}`}/posts/userId/${userId}`,
-        IS_SPRING && {
-          validateStatus: () => {
-            return true;
-          },
-        }
-      );
-      setUserPosts(res.data);
+      try {
+        setIsLoading(true);
+        const res = await axios.get(
+          `${URL || `http://localhost:${PORT}`}/posts/userId/${userId}`,
+          IS_SPRING && {
+            validateStatus: () => {
+              return true;
+            },
+          }
+        );
+        setUserPosts(res.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     getUserPosts();
-  }, [userId]);
+  }, [setIsLoading, userId]);
 
   //   console.log(userPosts);
 

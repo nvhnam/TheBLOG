@@ -4,6 +4,8 @@ import { createContext, useEffect, useState } from "react";
 import api from "../api/api.js";
 import axios from "axios";
 
+import { useNavigate } from "react-router-dom";
+
 export const AuthContext = createContext();
 const PORT = import.meta.env.VITE_API_PORT;
 const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
@@ -13,6 +15,8 @@ export const AuthContextProvider = ({ children, setIsLoading }) => {
   const [currentUser, setCurrentUser] = useState(
     JSON.parse(localStorage.getItem("user") || null)
   );
+
+  const navigate = useNavigate();
 
   const login = async (inputs) => {
     console.log("AuthContext inputs: ", inputs);
@@ -58,6 +62,7 @@ export const AuthContextProvider = ({ children, setIsLoading }) => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
         window.alert(res.data);
+        navigate("/home");
       } else {
         console.log("Error logout");
         window.alert(res.data);
