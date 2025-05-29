@@ -1,9 +1,13 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { createContext, useEffect, useState } from "react";
-import api from "../api/api";
+import api from "../api/api.js";
+import axios from "axios";
 
 export const AuthContext = createContext();
+const PORT = import.meta.env.VITE_API_PORT;
+const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
+const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
 export const AuthContextProvider = ({ children, setIsLoading }) => {
   const [currentUser, setCurrentUser] = useState(
@@ -35,10 +39,18 @@ export const AuthContextProvider = ({ children, setIsLoading }) => {
   const logout = async () => {
     try {
       setIsLoading(true);
-      const res = await api.post(`/auth/logout`, {
-        credentials: "include",
-        mode: "cors",
-      });
+      const res = await api.post(
+        `/auth/logout`,
+        {
+          credentials: "include",
+          mode: "cors",
+        }
+        // IS_SPRING && {
+        //   validateStatus: () => {
+        //     return true;
+        //   },
+        // }
+      );
       console.log("Logout res: ", res);
 
       if (res.status === 200) {

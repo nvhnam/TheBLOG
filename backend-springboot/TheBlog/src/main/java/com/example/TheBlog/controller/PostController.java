@@ -57,6 +57,17 @@ public class PostController {
         }
     }
 
+    @GetMapping("/userId/{id}")
+    @ResponseBody
+    public ResponseEntity<List<Post>> getPostsByAuthorId(@PathVariable("id") Integer id) {
+        try {
+            List<Post> post  = iPostService.getPostByAuthorId(id);
+            return new ResponseEntity<>(post, HttpStatus.FOUND);
+        } catch (PostNotFoundException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/latest")
     public ResponseEntity<PostResponseDTO> getLatestPostWithAuthorAndCategory() {
         try {

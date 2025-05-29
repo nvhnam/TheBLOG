@@ -97,7 +97,10 @@ public class PostService implements IPostService{
         );
     }
 
-    ;
+    @Override
+    public List<Post> getPostByAuthorId(Integer id) {
+        return postRepository.findByUserId(id);
+    };
 
     private PostResponseDTO mapToPostResponseDTO(Object[] row) {
         return new PostResponseDTO(

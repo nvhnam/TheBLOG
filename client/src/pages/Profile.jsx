@@ -8,6 +8,11 @@ import { defaultImg } from "../utils/Data";
 import moment from "moment";
 import { AuthContext } from "../context/authContext";
 
+const PORT = import.meta.env.VITE_API_PORT;
+const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
+
+const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
+
 const Profile = () => {
   const [userPosts, setUserPosts] = useState([]);
   const { userId } = useParams();
@@ -15,13 +20,15 @@ const Profile = () => {
 
   useEffect(() => {
     const getUserPosts = async () => {
-      const res = await axios.get(`http://localhost:8800/profile/${userId}`, {
-        withCredentials: true,
-      });
-      const sortedResults = res.data.sort(
-        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      const res = await axios.get(
+        `${URL || `http://localhost:${PORT}`}/posts/userId/${userId}`,
+        IS_SPRING && {
+          validateStatus: () => {
+            return true;
+          },
+        }
       );
-      setUserPosts(sortedResults);
+      setUserPosts(res.data);
     };
 
     getUserPosts();
@@ -55,7 +62,9 @@ const Profile = () => {
               <div className="w-full h-full  flex items-center justify-center">
                 <div className="w-1/4 h-full  flex flex-col items-center justify-center">
                   <p className="text-md w-full text-center h-full text-slate-600">
-                    {moment(post.created_at).startOf("minutes").fromNow()}
+                    {moment(IS_SPRING ? post.createdAt : post.created_at)
+                      .startOf("minutes")
+                      .fromNow()}
                   </p>
                 </div>
                 <div className="w-2/3 bg-gray-50 shadow-xl gap-5 rounded-t-md  h-full flex flex-col justify-center items-center">
@@ -64,7 +73,9 @@ const Profile = () => {
                       <img
                         className="size-full rounded-lg rounded object-cover"
                         src={
-                          post.image
+                          IS_SPRING
+                            ? post.image
+                            : post.image
                             ? `../upload/${post.image}`
                             : defaultImg.img
                         }

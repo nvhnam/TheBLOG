@@ -19,6 +19,7 @@ public class PostResponseDTO {
     private String authorImg;
     private List<String> categoryName = new ArrayList<>();
 
+
     public PostResponseDTO(Integer id, String title, String body, String image, LocalDateTime createdAt, String authorName, String authorImg, List<String> categoryName) {
         this.id = id;
         this.title = title;

@@ -94,7 +94,7 @@ const Post = ({ setIsLoading }) => {
             </div>
 
             {/* Post Body */}
-            <div className="w-full px-4 md:px-8">
+            <div className="w-full px-4 md:px-8 whitespace-pre-line">
               <p className="text-base md:text-lg text-gray-800 leading-relaxed">
                 {post.body}
               </p>
