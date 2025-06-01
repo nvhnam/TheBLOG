@@ -75,6 +75,13 @@ VITE_API_URL=http://localhost:8080
 
 ---
 
+## CI/CD Status
+
+![Frontend CI](https://github.com/nvhnam/TheBLOG/actions/workflows/frontend.yml/badge.svg)
+![Backend CI](https://github.com/nvhnam/TheBLOG/actions/workflows/backend.yml/badge.svg)
+
+---
+
 ## 🌐 Live Demo
 You can deploy the backend via Render and frontend via Vercel. Update CORS and .env URLs accordingly for production.
 
