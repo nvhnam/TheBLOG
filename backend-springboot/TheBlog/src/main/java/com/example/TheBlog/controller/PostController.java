@@ -41,61 +41,42 @@ public class PostController {
     @GetMapping("/all")
     public ResponseEntity<List<PostResponseDTO>> getAllPostsWithAuthorAndCategory(){
         List<PostResponseDTO> postResponseDTOS = iPostService.getAllPostsWithAuthorAndCategory();
-//        System.out.print("getAllPostsWithAuthorAndCategory: " + postResponseDTOS);
-        return new ResponseEntity<>(postResponseDTOS, HttpStatus.FOUND);
+        return new ResponseEntity<>(postResponseDTOS, HttpStatus.OK);
     }
 
     @GetMapping("/id/{id}")
     @ResponseBody
     public ResponseEntity<PostResponseDTO> getPostWithAuthorAndCategoryById(@PathVariable("id") Integer id) {
-//        return iPostService.getPostById(id);
-        try {
-            PostResponseDTO post  = iPostService.getPostWithAuthorAndCategoryById(id);
-            return new ResponseEntity<>(post, HttpStatus.FOUND);
-        } catch (PostNotFoundException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+        PostResponseDTO post  = iPostService.getPostWithAuthorAndCategoryById(id);
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
     @GetMapping("/userId/{id}")
     @ResponseBody
     public ResponseEntity<List<Post>> getPostsByAuthorId(@PathVariable("id") Integer id) {
-        try {
-            List<Post> post  = iPostService.getPostByAuthorId(id);
-            return new ResponseEntity<>(post, HttpStatus.FOUND);
-        } catch (PostNotFoundException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+        List<Post> post  = iPostService.getPostByAuthorId(id);
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
     @GetMapping("/latest")
     public ResponseEntity<PostResponseDTO> getLatestPostWithAuthorAndCategory() {
-        try {
-            PostResponseDTO post = iPostService.getLatestPostWithAuthorAndCategory();
-            return new ResponseEntity<>(post, HttpStatus.FOUND);
-        } catch (PostNotFoundException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+        PostResponseDTO post = iPostService.getLatestPostWithAuthorAndCategory();
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
     @GetMapping("/category/{category}")
     public ResponseEntity<List<PostResponseDTO>> getAllPostsWithAuthorAndCategoryByCategory(@PathVariable("category") String category) {
         List<PostResponseDTO> results = iPostService.getAllPostsWithAuthorAndCategoryByCategory(category);
-        return new ResponseEntity<>(results, HttpStatus.FOUND);
+        return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Post> uploadPost(@RequestParam("title") String title,
-                                           @RequestParam("userId") Integer userId,
-                                           @RequestParam("body") String body,
-                                           @RequestParam("created_at")String createdAt,
-                                           @RequestParam("img") MultipartFile image,
-                                           @RequestParam("categoriesId") List<Integer> categoriesId) throws IOException {
+    public ResponseEntity<Post> uploadPost(@ModelAttribute @jakarta.validation.Valid com.example.TheBlog.DTO.PostUploadRequestDTO requestDTO) throws IOException {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime parsedCreatedAt = LocalDateTime.parse(createdAt, formatter);
+        LocalDateTime parsedCreatedAt = LocalDateTime.parse(requestDTO.getCreated_at(), formatter);
 
-        Post post = iPostService.createPost(title, userId, body, parsedCreatedAt, image, categoriesId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        Post post = iPostService.createPost(requestDTO.getTitle(), requestDTO.getUserId(), requestDTO.getBody(), parsedCreatedAt, requestDTO.getImg(), requestDTO.getCategoriesId());
+        return new ResponseEntity<>(post, HttpStatus.CREATED);
     }
 }
