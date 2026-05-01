@@ -50,51 +50,33 @@ public class PostService implements IPostService{
     @Override
     @Cacheable("postCache")
     public List<PostResponseDTO> getAllPostsWithAuthorAndCategory() {
-        List<Object[]> results = postRepository.findAllPostsWithAuthorAndCategory();
-//        System.out.println("getAllPostsWithAuthorAndCategory results: ");
-//        for (Object[] row : results) {
-//            System.out.println(Arrays.toString(row));
-//        }
+        List<Post> results = postRepository.findAllPostsWithAuthorAndCategory();
         return results.stream().map(this::mapToPostResponseDTO).toList();
     }
 
     @Override
     @Cacheable("postCache")
     public List<PostResponseDTO> getAllPostsWithAuthorAndCategoryByCategory(String category) {
-        List<Object[]> results = postRepository.findAllPostsWithAuthorAndCategoryByCategory(category);
+        List<Post> results = postRepository.findAllPostsWithAuthorAndCategoryByCategory(category);
         return results.stream().map(this::mapToPostResponseDTO).toList();
     }
 
     @Override
     public PostResponseDTO getPostWithAuthorAndCategoryById(Integer id) {
-        List<Object[]> results = postRepository.findPostWithAuthorAndCategoryById(id);
-        Object[] row = results.get(0);
-        return new PostResponseDTO(
-                (Integer) row[0],
-                (String) row[1],
-                (String) row[2],
-                (String) row[3],
-                ((Timestamp) row[4]).toLocalDateTime(),
-                (String) row[5],
-                (String) row[6],
-                new ArrayList<>(List.of(String.valueOf(row[7])))
-        );
+        List<Post> results = postRepository.findPostWithAuthorAndCategoryById(id);
+        if (results.isEmpty()) {
+            throw new PostNotFoundException("Can't found post with id: " + id);
+        }
+        return mapToPostResponseDTO(results.get(0));
     }
 
     @Override
     public PostResponseDTO getLatestPostWithAuthorAndCategory() {
-        List<Object[]> results = postRepository.findLatestPostWithAuthorAndCategory();
-        Object[] row = results.get(0);
-        return new PostResponseDTO(
-                (Integer) row[0],
-                (String) row[1],
-                (String) row[2],
-                (String) row[3],
-                ((Timestamp) row[4]).toLocalDateTime(),
-                (String) row[5],
-                (String) row[6],
-                new ArrayList<>(List.of(String.valueOf(row[7])))
-        );
+        Post post = postRepository.findTopByOrderByCreatedAtDesc();
+        if (post == null) {
+            throw new PostNotFoundException("No post found");
+        }
+        return mapToPostResponseDTO(post);
     }
 
     @Override
@@ -102,16 +84,16 @@ public class PostService implements IPostService{
         return postRepository.findByUserId(id);
     };
 
-    private PostResponseDTO mapToPostResponseDTO(Object[] row) {
+    private PostResponseDTO mapToPostResponseDTO(Post post) {
         return new PostResponseDTO(
-                (Integer) row[0],
-                (String) row[1],
-                (String) row[2],
-                (String) row[3],
-                ((Timestamp) row[4]).toLocalDateTime(),
-                (String) row[5],
-                (String) row[6],
-                new ArrayList<>(List.of(String.valueOf(row[7])))
+                post.getId(),
+                post.getTitle(),
+                post.getBody(),
+                post.getImage(),
+                post.getCreatedAt(),
+                post.getUser().getUsername(),
+                post.getUser().getImg(),
+                post.getCategories().stream().map(Category::getName).toList()
         );
     }
 
@@ -134,7 +116,6 @@ public class PostService implements IPostService{
     @CachePut(value = "postCache")
     public Post createPost(String title, Integer userId, String body, LocalDateTime createdAt, MultipartFile image, List<Integer> categoriesId) throws IOException {
         String imgUrl = iCloudinaryService.upload(image);
-        System.out.println("Returned imgURL: " + imgUrl);
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Can't not find user ID: " + userId));
 

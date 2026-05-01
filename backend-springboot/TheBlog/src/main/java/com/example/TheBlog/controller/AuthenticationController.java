@@ -57,21 +57,13 @@ public class AuthenticationController {
 
     @PostMapping("/verify")
     public ResponseEntity<?> verifyUser(@RequestBody VerifyUserDTO verifyUserDto) {
-        try {
-            authenticationService.verifyUser(verifyUserDto);
-            return new ResponseEntity<>("Account verified successfully", HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        authenticationService.verifyUser(verifyUserDto);
+        return new ResponseEntity<>("Account verified successfully", HttpStatus.CREATED);
     }
 
     @PostMapping("/resend")
     public ResponseEntity<?> resendVerificationCode(@RequestBody String email) {
-        try {
-            authenticationService.resendVerificationCode(email);
-            return new ResponseEntity<>("Verification code sent successfully", HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        authenticationService.resendVerificationCode(email);
+        return new ResponseEntity<>("Verification code sent successfully", HttpStatus.OK);
     }
 }
