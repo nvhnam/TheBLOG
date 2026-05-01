@@ -1,15 +1,10 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import api from "../api/api";
 import { defaultImg } from "../utils/Data";
 import moment from "moment";
-
-const PORT = import.meta.env.VITE_API_PORT;
-const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
-
-const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
 const PostCategories = ({ setIsLoading }) => {
   const { category } = useParams();
@@ -19,14 +14,7 @@ const PostCategories = ({ setIsLoading }) => {
     const getPostsByCategory = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get(
-          `${URL || `http://localhost:${PORT}`}/posts/category/${category}`,
-          IS_SPRING && {
-            validateStatus: () => {
-              return true;
-            },
-          }
-        );
+        const res = await api.get(`/posts/category/${category}`);
         console.log("PostCategories res.data: ", res.data);
         setPosts(res.data);
       } catch (error) {
@@ -37,8 +25,6 @@ const PostCategories = ({ setIsLoading }) => {
     };
     getPostsByCategory();
   }, [category, setIsLoading]);
-
-  // console.log("Params category: ", category);
 
   return (
     <div className="w-full h-full flex min-h-screen justify-center bg-slate-50">
@@ -58,13 +44,7 @@ const PostCategories = ({ setIsLoading }) => {
                     <div className="flex-1 w-1/2 h-full justify-center items-center">
                       <img
                         className="w-full h-full rounded-lg object-cover"
-                        src={
-                          IS_SPRING
-                            ? post.image
-                            : post.image
-                            ? `../upload/${post.image}`
-                            : defaultImg.img
-                        }
+                        src={post.image || defaultImg.img}
                       />
                     </div>
                   )}
@@ -77,18 +57,12 @@ const PostCategories = ({ setIsLoading }) => {
                       <span className="size-8">
                         <img
                           className="size-full rounded-full rounded object-cover"
-                          src={
-                            post.author_img
-                              ? `../upload/${
-                                  IS_SPRING ? post.authorImg : post.author_img
-                                }`
-                              : defaultImg.img
-                          }
-                          alt={post.author_name + " image"}
+                          src={post.authorImg || defaultImg.img}
+                          alt={post.authorName + " image"}
                         />
                       </span>
                       <p className="text-md text-slate-600">
-                        {IS_SPRING ? post.authorName : post.author_name}
+                        {post.authorName}
                       </p>
                     </div>
                     <div className="">
@@ -102,10 +76,10 @@ const PostCategories = ({ setIsLoading }) => {
                     <div className="flex flex-row justify-between pr-5">
                       <div className="flex gap-4 items-center">
                         <span className="font-bold text-red-400">
-                          {IS_SPRING ? post.categoryName : post.category_name}
+                          {Array.isArray(post.categoryName) ? post.categoryName[0] : post.categoryName}
                         </span>
                         <span className="text-sm text-slate-600">
-                          {moment(IS_SPRING ? post.createdAt : post.created_at)
+                          {moment(post.createdAt)
                             .startOf("minute")
                             .fromNow()}
                         </span>

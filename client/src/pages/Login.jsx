@@ -21,7 +21,7 @@ const Login = () => {
 
   const [errors, setErrors] = useState(null);
 
-  const { setCurrentUser } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -33,29 +33,11 @@ const Login = () => {
     e.preventDefault();
     try {
       setIsLoading(true);
-      const res = await api.post("/auth/login", inputs, {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        mode: "cors",
-      });
-      console.log("Login res: ", res);
-      if (res.status === 200) {
-        console.log("Login res.data: ", res.data);
-        const userData = res.data;
-        setCurrentUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-
-        if (userData.token) {
-          localStorage.setItem("token", userData.token);
-        }
-
-        navigate("/home");
-      }
+      await login(inputs);
+      navigate("/home");
     } catch (error) {
-      setErrors(error.response.data);
+      const errorMessage = error.response?.data?.message || error.response?.data || "An error occurred during login";
+      setErrors(typeof errorMessage === "string" ? errorMessage : "Invalid credentials");
     } finally {
       setIsLoading(false);
     }

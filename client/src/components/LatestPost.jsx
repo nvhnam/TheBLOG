@@ -5,12 +5,7 @@ import { Link } from "react-router-dom";
 import moment from "moment";
 import { defaultImg } from "../utils/Data";
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-const PORT = import.meta.env.VITE_API_PORT;
-const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
-
-const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
+import api from "../api/api";
 
 const LatestPost = ({ setIsLoading }) => {
   const [latestPost, setLatestPost] = useState(null);
@@ -19,18 +14,9 @@ const LatestPost = ({ setIsLoading }) => {
     const getLatestPost = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get(
-          `${URL || `http://localhost:${PORT}`}/posts/latest`,
-          IS_SPRING && {
-            validateStatus: () => {
-              return true;
-            },
-          }
-        );
-        // console.log("getLatestPost: ", res.data);
-        if (res.status === 302) {
-          setLatestPost(res.data);
-        }
+        const res = await api.get("/posts/latest");
+        console.log("getLatestPost: ", res.data);
+        setLatestPost(res.data);
       } catch (error) {
         console.log(error);
       } finally {
@@ -54,13 +40,7 @@ const LatestPost = ({ setIsLoading }) => {
                 <div className="flex-1 w-full md:w-1/2 h-64 md:h-80 flex justify-center items-center">
                   <img
                     className="w-full h-full rounded-lg object-cover"
-                    src={
-                      IS_SPRING
-                        ? latestPost.image
-                        : latestPost.image
-                        ? `../upload/${latestPost.image}`
-                        : defaultImg.img
-                    }
+                    src={latestPost.image}
                     alt="Post"
                   />
                 </div>
@@ -76,20 +56,12 @@ const LatestPost = ({ setIsLoading }) => {
                   <span className="size-10 md:size-12">
                     <img
                       className="w-full h-full rounded-full object-cover"
-                      src={
-                        latestPost.author_img
-                          ? `../upload/${
-                              IS_SPRING
-                                ? latestPost.authorImg
-                                : latestPost.author_img
-                            }`
-                          : defaultImg.img
-                      }
-                      alt={latestPost.author_name + " image"}
+                      src={latestPost.authorImg || defaultImg.img}
+                      alt={latestPost.authorName + " image"}
                     />
                   </span>
                   <p className="text-md md:text-lg text-slate-600">
-                    {IS_SPRING ? latestPost.authorName : latestPost.author_name}
+                    {latestPost.authorName}
                   </p>
                 </div>
 
@@ -107,14 +79,12 @@ const LatestPost = ({ setIsLoading }) => {
                 <div className="flex flex-row justify-between pr-2 md:pr-5">
                   <div className="flex gap-4 items-center">
                     <span className="font-bold text-red-400 text-sm md:text-base">
-                      {IS_SPRING
-                        ? latestPost.categoryName
-                        : latestPost.category_name}
+                      {Array.isArray(latestPost.categoryName)
+                        ? latestPost.categoryName.join(", ")
+                        : latestPost.categoryName}
                     </span>
                     <span className="text-xs md:text-sm text-slate-600">
-                      {moment(
-                        IS_SPRING ? latestPost.createdAt : latestPost.created_at
-                      )
+                      {moment(latestPost.createdAt)
                         .startOf("minute")
                         .fromNow()}
                     </span>
