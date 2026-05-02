@@ -79,9 +79,9 @@ const LatestPost = ({ setIsLoading }) => {
                 <div className="flex flex-row justify-between pr-2 md:pr-5">
                   <div className="flex gap-4 items-center">
                     <span className="font-bold text-red-400 text-sm md:text-base">
-                      {Array.isArray(latestPost.categoryName)
-                        ? latestPost.categoryName.join(", ")
-                        : latestPost.categoryName}
+                      {Array.isArray(latestPost.categoryNames)
+                        ? latestPost.categoryNames.join(", ")
+                        : latestPost.categoryNames}
                     </span>
                     <span className="text-xs md:text-sm text-slate-600">
                       {moment(latestPost.createdAt)

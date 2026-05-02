@@ -7,21 +7,37 @@ import { defaultImg } from "../utils/Data";
 
 const RecentPosts = () => {
   const [recentPosts, setRecentPosts] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     const getPosts = async () => {
       try {
-        const res = await api.get("/posts/all");
-        const sortedPosts = res.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setRecentPosts(sortedPosts.slice(0, 8));
+        const res = await api.get("/posts/all/paginated", {
+          params: { page, size: 8, sortBy: "createdAt" }
+        });
+        setRecentPosts(res.data.content);
+        setTotalPages(res.data.totalPages);
       } catch (error) {
         console.log("Error fetching posts: ", error);
       }
     };
     getPosts();
-  }, []);
+  }, [page]);
+
+  const handleNext = () => {
+    if (page < totalPages - 1) {
+      setPage(page + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handlePrev = () => {
+    if (page > 0) {
+      setPage(page - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center mt-20">
@@ -66,14 +82,33 @@ const RecentPosts = () => {
               </div>
 
               <span className="font-bold text-sm text-red-400">
-                {Array.isArray(post.categoryName)
-                  ? post.categoryName.join(", ")
-                  : post.categoryName}
+                {Array.isArray(post.categoryNames)
+                  ? post.categoryNames.join(", ")
+                  : post.categoryNames}
               </span>
             </div>
           </Link>
         ))}
       </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mb-14">
+          <button
+            onClick={handlePrev}
+            disabled={page === 0}
+            className={`px-4 py-2 rounded font-semibold ${page === 0 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-400 text-white hover:bg-red-500 duration-200"}`}
+          >
+            Previous
+          </button>
+          <span className="text-slate-700 font-medium text-sm">Page {page + 1} of {totalPages}</span>
+          <button
+            onClick={handleNext}
+            disabled={page >= totalPages - 1}
+            className={`px-4 py-2 rounded font-semibold ${page >= totalPages - 1 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-400 text-white hover:bg-red-500 duration-200"}`}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

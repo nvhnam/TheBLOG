@@ -22,19 +22,20 @@ const Home = ({ setIsLoading }) => {
     const getPosts = async () => {
       try {
         setIsLoading(true);
-        const res = await api.get("/posts/all");
+        const res = await api.get("/posts/all/paginated", {
+          params: { page: 0, size: 20, sortBy: "createdAt" }
+        });
 
-        const sortedPosts = res.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        );
+        // The endpoint returns sorted data by createdAt descending
+        const sortedPosts = res.data.content;
 
         setLatestPost(sortedPosts[0]);
 
         const postsByCategory = sortedPosts.reduce((acc, post) => {
-          // In Spring, categoryName is a List<String>. For grouping, we'll use the first one.
-          const category = Array.isArray(post.categoryName)
-            ? post.categoryName[0]
-            : post.categoryName;
+          // In Spring, categoryNames is a List<String>. For grouping, we'll use the first one.
+          const category = Array.isArray(post.categoryNames)
+            ? post.categoryNames[0]
+            : post.categoryNames;
           if (!acc[category]) {
             acc[category] = [];
           }

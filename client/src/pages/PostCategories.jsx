@@ -76,7 +76,7 @@ const PostCategories = ({ setIsLoading }) => {
                     <div className="flex flex-row justify-between pr-5">
                       <div className="flex gap-4 items-center">
                         <span className="font-bold text-red-400">
-                          {Array.isArray(post.categoryName) ? post.categoryName[0] : post.categoryName}
+                          {Array.isArray(post.categoryNames) ? post.categoryNames[0] : post.categoryNames}
                         </span>
                         <span className="text-sm text-slate-600">
                           {moment(post.createdAt)
