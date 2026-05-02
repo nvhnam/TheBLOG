@@ -136,6 +136,21 @@ public class PostService implements IPostService {
         );
     }
 
+    private PostResponseDTO mapToPostResponseDTO(Object[] row) {
+        LocalDateTime createdAt = row[4] != null ? ((Timestamp) row[4]).toLocalDateTime() : null;
+        List<String> categories = row[7] != null ? List.of((String) row[7]) : List.of();
+        return new PostResponseDTO(
+                ((Number) row[0]).intValue(),
+                (String) row[1],
+                (String) row[2],
+                (String) row[3],
+                createdAt,
+                (String) row[5],
+                (String) row[6],
+                categories
+        );
+    }
+
     @Override
     public Post getPostById(Integer id) {
         return postRepository.findById(id)
