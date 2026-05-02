@@ -38,7 +38,7 @@ class PostServiceTest {
     CategoryRepository categoryRepository;
 
     @Mock
-    ICloudinaryService iCloudinaryService;
+    IFileStorageService iFileStorageService;
 
     @InjectMocks
     PostService postService;
@@ -78,6 +78,36 @@ class PostServiceTest {
         mockPostResult.setCategories(mockCategory);
     }
 
+    @BeforeEach
+    void setUpPostResponseDTO() {
+        expectedPost = new PostResponseDTO(
+                1,
+                "This is tech blog",
+                "This is tech blog body",
+                "url",
+                LocalDateTime.now(),
+                "John",
+                null,
+                new ArrayList<>(List.of("Technology"))
+        );
+
+        Object[] mockRow = {
+                expectedPost.getId(),
+                expectedPost.getTitle(),
+                expectedPost.getBody(),
+                expectedPost.getImage(),
+                Timestamp.valueOf(expectedPost.getCreatedAt()),
+                expectedPost.getAuthorName(),
+                expectedPost.getAuthorImg(),
+                expectedPost.getCategoryNames().get(0)
+        };
+
+        mockDatabaseResult = new ArrayList<>();
+        mockDatabaseResult.add(mockRow);
+
+    }
+
+
     @Test
     void getAllPostsWithAuthorAndCategory_successfully() {
         Mockito.when(postRepository.findTopByOrderByCreatedAtDesc()).thenReturn(mockPostResult);
@@ -90,7 +120,8 @@ class PostServiceTest {
         assertEquals("This is tech blog body", latestPost.getBody());
         assertNotNull(latestPost.getCreatedAt());
         assertEquals("John", latestPost.getAuthorName());
-        assertEquals(List.of("Technology"), latestPost.getCategoryName());
+        assertEquals(List.of("Technology"), latestPost.getCategoryNames());
+
     }
 
     @Test
@@ -126,7 +157,7 @@ class PostServiceTest {
 
     @Test
     void createPost_successfully() throws IOException {
-        Mockito.when(iCloudinaryService.upload(mockImage)).thenReturn("url");
+        Mockito.when(iFileStorageService.upload(mockImage)).thenReturn("url");
         Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(mockUser));
         Mockito.when(categoryRepository.findAllById(List.of(1))).thenReturn(mockCategory);
         Mockito.when(postRepository.save(Mockito.any(Post.class))).thenReturn(mockPost);

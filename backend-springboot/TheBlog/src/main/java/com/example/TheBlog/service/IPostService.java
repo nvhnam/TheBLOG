@@ -2,15 +2,18 @@ package com.example.TheBlog.service;
 
 import com.example.TheBlog.model.Post;
 import com.example.TheBlog.DTO.PostResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 public interface IPostService {
     Post addPost(Post post);
     List<Post> getAllPosts();
+    Page<PostResponseDTO> getAllPostsPaginated(Pageable pageable);
 
     List<PostResponseDTO> getAllPostsWithAuthorAndCategory();
 

@@ -1,37 +1,39 @@
 package com.example.TheBlog.service;
 
+import com.example.TheBlog.DTO.EmailMessageDTO;
 import com.example.TheBlog.DTO.LoginUserDTO;
 import com.example.TheBlog.DTO.RegisterUserDTO;
 import com.example.TheBlog.DTO.VerifyUserDTO;
 import com.example.TheBlog.model.User;
 import com.example.TheBlog.repository.UserRepository;
-import jakarta.mail.MessagingException;
+import com.example.TheBlog.utils.AppConstants;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Random;
+import java.security.SecureRandom;
+
 
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final EmailService emailService;
+    private final EmailProducer emailProducer;
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     public AuthenticationService(
             UserRepository userRepository,
             AuthenticationManager authenticationManager,
             PasswordEncoder passwordEncoder,
-            EmailService emailService
+            EmailProducer emailProducer
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.emailService = emailService;
+        this.emailProducer = emailProducer;
     }
 
     public User signup(RegisterUserDTO input) {
@@ -45,10 +47,10 @@ public class AuthenticationService {
 
     public User authenticate(LoginUserDTO input) {
         User user = userRepository.findByEmail(input.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException(AppConstants.Errors.USER_NOT_FOUND));
 
         if (!user.isEnabled()) {
-            throw new RuntimeException("Account not verified. Please verify your account.");
+            throw new RuntimeException(AppConstants.Errors.ACCOUNT_NOT_VERIFIED);
         }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -65,7 +67,7 @@ public class AuthenticationService {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("Verification code has expired");
+                throw new RuntimeException(AppConstants.Errors.VERIFICATION_CODE_EXPIRED);
             }
             if (user.getVerificationCode().equals(input.getVerificationCode())) {
                 user.setEnabled(true);
@@ -73,10 +75,10 @@ public class AuthenticationService {
                 user.setVerificationCodeExpiresAt(null);
                 userRepository.save(user);
             } else {
-                throw new RuntimeException("Invalid verification code");
+                throw new RuntimeException(AppConstants.Errors.INVALID_VERIFICATION_CODE);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new RuntimeException(AppConstants.Errors.USER_NOT_FOUND);
         }
     }
 
@@ -85,43 +87,27 @@ public class AuthenticationService {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (user.isEnabled()) {
-                throw new RuntimeException("Account is already verified");
+                throw new RuntimeException(AppConstants.Errors.ALREADY_VERIFIED);
             }
             user.setVerificationCode(generateVerificationCode());
             user.setVerificationCodeExpiresAt(LocalDateTime.now().plusHours(1));
             sendVerificationEmail(user);
             userRepository.save(user);
         } else {
-            throw new RuntimeException("User not found");
+            throw new RuntimeException(AppConstants.Errors.USER_NOT_FOUND);
         }
     }
 
     private void sendVerificationEmail(User user) {
-        String subject = "Account Verification";
-        String verificationCode = "VERIFICATION CODE " + user.getVerificationCode();
-        String htmlMessage = "<html>"
-                + "<body style=\"font-family: Arial, sans-serif;\">"
-                + "<div style=\"background-color: #f5f5f5; padding: 20px;\">"
-                + "<h2 style=\"color: #333;\">Welcome to our app!</h2>"
-                + "<p style=\"font-size: 16px;\">Please enter the verification code below to continue:</p>"
-                + "<div style=\"background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);\">"
-                + "<h3 style=\"color: #333;\">Verification Code:</h3>"
-                + "<p style=\"font-size: 18px; font-weight: bold; color: #007bff;\">" + verificationCode + "</p>"
-                + "</div>"
-                + "</div>"
-                + "</body>"
-                + "</html>";
+        String subject = AppConstants.Email.VERIFICATION_SUBJECT;
+        String verificationCode = AppConstants.Email.VERIFICATION_CODE_PREFIX + user.getVerificationCode();
+        String htmlMessage = String.format(AppConstants.Email.VERIFICATION_EMAIL_TEMPLATE, verificationCode);
 
-        try {
-            System.out.println("user.getEmail(): " + user.getEmail());
-            emailService.sendVerificationEmail(user.getEmail(), subject, htmlMessage);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
+        EmailMessageDTO emailMessage = new EmailMessageDTO(user.getEmail(), subject, htmlMessage);
+        emailProducer.sendEmailMessage(emailMessage);
     }
     private String generateVerificationCode() {
-        Random random = new Random();
-        int code = random.nextInt(900000) + 100000;
+        int code = SECURE_RANDOM.nextInt(900000) + 100000;
         return String.valueOf(code);
     }
 }
