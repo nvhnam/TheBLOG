@@ -1,18 +1,11 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-// import React from "react";
-
-import axios from "axios";
-import { useContext, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { useParams, Link } from "react-router-dom";
+import api from "../api/api";
 import { defaultImg } from "../utils/Data";
 import moment from "moment";
 import { AuthContext } from "../context/authContext";
-
-const PORT = import.meta.env.VITE_API_PORT;
-const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
-
-const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
 const Profile = ({ setIsLoading }) => {
   const [userPosts, setUserPosts] = useState([]);
@@ -23,14 +16,7 @@ const Profile = ({ setIsLoading }) => {
     const getUserPosts = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get(
-          `${URL || `http://localhost:${PORT}`}/posts/userId/${userId}`,
-          IS_SPRING && {
-            validateStatus: () => {
-              return true;
-            },
-          }
-        );
+        const res = await api.get(`/posts/userId/${userId}`);
         setUserPosts(res.data);
       } catch (error) {
         console.log(error);
@@ -42,8 +28,6 @@ const Profile = ({ setIsLoading }) => {
     getUserPosts();
   }, [setIsLoading, userId]);
 
-  //   console.log(userPosts);
-
   return (
     <div className="w-full h-full flex justify-center bg-slate-50 min-h-screen">
       <div className="w-full h-full max-w-screen-xl flex flex-col items-center px-4 mb-28">
@@ -51,14 +35,11 @@ const Profile = ({ setIsLoading }) => {
           <span className="size-24">
             <img
               className="size-full rounded-full rounded object-cover"
-              src={
-                userPosts.author_img
-                  ? `../upload/${userPosts.author_img}`
-                  : defaultImg.img
-              }
+              src={currentUser?.img || defaultImg.img}
+              alt={currentUser?.username}
             />
           </span>
-          <p className="text-4xl text-slate-600">{currentUser.username}</p>
+          <p className="text-4xl text-slate-600">{currentUser?.username}</p>
         </div>
 
         <div className="w-full h-full max-w-6xl flex flex-col items-center gap-24">
@@ -70,7 +51,7 @@ const Profile = ({ setIsLoading }) => {
               <div className="w-full h-full  flex items-center justify-center">
                 <div className="w-1/4 h-full  flex flex-col items-center justify-center">
                   <p className="text-md w-full text-center h-full text-slate-600">
-                    {moment(IS_SPRING ? post.createdAt : post.created_at)
+                    {moment(post.createdAt)
                       .startOf("minutes")
                       .fromNow()}
                   </p>
@@ -80,13 +61,8 @@ const Profile = ({ setIsLoading }) => {
                     <span className="size-24 w-1/3 h-full">
                       <img
                         className="size-full rounded-lg rounded object-cover"
-                        src={
-                          IS_SPRING
-                            ? post.image
-                            : post.image
-                            ? `../upload/${post.image}`
-                            : defaultImg.img
-                        }
+                        src={post.image || defaultImg.img}
+                        alt={post.title}
                       />
                     </span>
                     <div className="w-2/4 h-full flex flex-col gap-3 justify-center">

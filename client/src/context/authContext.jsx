@@ -12,49 +12,52 @@ const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
 const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
 export const AuthContextProvider = ({ children, setIsLoading }) => {
-  const [currentUser, setCurrentUser] = useState(
-    JSON.parse(localStorage.getItem("user") || null)
-  );
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem("user");
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (error) {
+      console.error("Error parsing user from localStorage:", error);
+      return null;
+    }
+  });
 
   const navigate = useNavigate();
 
   const login = async (inputs) => {
     console.log("AuthContext inputs: ", inputs);
 
-    // const res = await api.post("/auth/login", inputs, {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Accept: "application/json",
-    //   },
-    // });
+    const res = await api.post("/auth/login", inputs, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      credentials: "include",
+      mode: "cors",
+    });
 
-    // console.log("AuthContext login res.data: ", res.data);
-    // const userData = res.data;
-    // setCurrentUser(userData);
-    // localStorage.setItem("user", JSON.stringify(userData));
+    console.log("AuthContext login res.data: ", res.data);
+    const userData = res.data;
+    
+    // Calculate expiration time immediately
+    if (userData.expiresIn) {
+      userData.expiresAt = new Date().getTime() + userData.expiresIn;
+    }
+    
+    setCurrentUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
 
-    // if (userData.token) {
-    //   localStorage.setItem("token", userData.token);
-    // }
+    if (userData.token) {
+      localStorage.setItem("token", userData.token);
+    }
 
-    // return userData;
+    return userData;
   };
 
   const logout = async () => {
     try {
       setIsLoading(true);
-      const res = await api.post(
-        `/auth/logout`,
-        {
-          credentials: "include",
-          mode: "cors",
-        }
-        // IS_SPRING && {
-        //   validateStatus: () => {
-        //     return true;
-        //   },
-        // }
-      );
+      const res = await api.post(`/auth/logout`);
       console.log("Logout res: ", res);
 
       if (res.status === 200) {
@@ -69,22 +72,39 @@ export const AuthContextProvider = ({ children, setIsLoading }) => {
       }
     } catch (error) {
       console.log(error);
+      // Even if backend logout fails, clear local state
+      setCurrentUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      navigate("/home");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    localStorage.setItem("user", JSON.stringify(currentUser));
-    // console.log("isUserAvailable: ", currentUser);
-    if (currentUser != null) {
-      const expireTime = new Date().getTime() + currentUser.expiresIn;
-      const currentTime = new Date().getTime();
-      console.log("expireTime: ", expireTime);
-      console.log("currentTime: ", currentTime);
-      if (currentTime >= parseInt(expireTime, 10)) {
-        logout();
+    if (currentUser) {
+      localStorage.setItem("user", JSON.stringify(currentUser));
+      
+      if (currentUser.expiresAt) {
+        const currentTime = new Date().getTime();
+        const timeLeft = currentUser.expiresAt - currentTime;
+        
+        console.log("Time left until token expires (ms): ", timeLeft);
+        
+        if (timeLeft <= 0) {
+          logout();
+        } else {
+          // Set a timeout to logout when token expires
+          const timer = setTimeout(() => {
+            logout();
+          }, timeLeft);
+          return () => clearTimeout(timer);
+        }
       }
+    } else {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
     }
   }, [currentUser]);
 

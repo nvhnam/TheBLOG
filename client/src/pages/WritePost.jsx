@@ -5,19 +5,11 @@
 import { useContext, useEffect, useState } from "react";
 import Button from "../components/Button";
 import { AuthContext } from "../context/authContext";
-import axios from "axios";
 import moment from "moment";
 import RecentPosts from "../components/RecentPosts";
 import api from "../api/api";
-// import { useLocation } from "react-router-dom";
-
-const PORT = import.meta.env.VITE_API_PORT;
-const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
-
-const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
 const WritePost = ({ setIsLoading }) => {
-  // const state = useLocation().state;
   const [title, setTitle] = useState("");
   const [paragraph, setParagraph] = useState("");
   const [file, setFile] = useState(null);
@@ -28,15 +20,7 @@ const WritePost = ({ setIsLoading }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(
-          `${URL || `http://localhost:${PORT}`}/categories/all`,
-          IS_SPRING && {
-            validateStatus: () => {
-              return true;
-            },
-          }
-        );
-        // console.log(response.data);
+        const response = await api.get("/categories/all");
         setCategories(response.data);
       } catch (error) {
         console.log("Error fetching categories: ", error);
@@ -44,8 +28,6 @@ const WritePost = ({ setIsLoading }) => {
     };
     fetchCategories();
   }, []);
-
-  // console.log(categories);
 
   const handleCheckbox = (categoryId) => {
     setChosenCategoryIds((prev) => {
@@ -57,22 +39,17 @@ const WritePost = ({ setIsLoading }) => {
     });
   };
 
-  // console.log(chosenCategoryIds);
-
-  const handleUpload = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await axios.post("http://localhost:8800/upload", formData);
-      // console.log(res.data);
-      return res.data;
-    } catch (error) {
-      console.log("Error handling upload");
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!file) {
+      window.alert("Please select an image for your post.");
+      return;
+    }
+    if (chosenCategoryIds.length === 0) {
+      window.alert("Please choose at least one category.");
+      return;
+    }
+
     try {
       setIsLoading(true);
       const currentDateTime = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
@@ -83,51 +60,34 @@ const WritePost = ({ setIsLoading }) => {
       formData.append("userId", userId);
       formData.append("body", paragraph);
       formData.append("created_at", currentDateTime);
-      if (file) {
-        formData.append("img", file);
-      }
+      formData.append("img", file);
+      
       chosenCategoryIds.forEach((cateID) => {
         formData.append("categoriesId", cateID);
       });
-      // formData.append("categoriesId", chosenCategoryIds);
-      // const uploadedImg = await handleUpload();
-      // console.log(currentDateTime);
-
-      // const formData = {
-      //   title: title,
-      //   userId: userId,
-      //   body: paragraph,
-      //   created_at: currentDateTime,
-      //   // img: file ? uploadedImg : "",
-      //   img: file,
-      //   categoriesId: chosenCategoryIds,
-      // };
 
       console.log("Sending formData: ", formData);
 
       try {
-        const res = await api.post(
-          `/posts/upload`,
-          formData,
-          IS_SPRING && {
-            headers: {
-              "Content-Type": "multipart/form_data",
-            },
-            validateStatus: () => true,
-          }
-        );
+        const res = await api.post("/posts/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         if (res.status === 201) {
           setTitle("");
           setParagraph("");
           setFile(null);
           setChosenCategoryIds([]);
+          window.alert("Post uploaded successfully!");
           window.location.reload();
         } else {
           console.log("Error submitting the form");
         }
       } catch (error) {
-        console.log(error);
+        console.log("Upload error: ", error);
+        window.alert("Error uploading post: " + (error.response?.data?.message || error.message));
       }
     } catch (error) {
       console.log(error);
@@ -166,7 +126,7 @@ const WritePost = ({ setIsLoading }) => {
               {/* File Upload */}
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <label className="block w-full sm:w-auto">
-                  <span className="sr-only">Choose profile photo</span>
+                  <span className="sr-only">Choose post image</span>
                   <input
                     type="file"
                     name="file"
@@ -175,6 +135,7 @@ const WritePost = ({ setIsLoading }) => {
                   file:text-sm file:font-semibold file:bg-red-50 file:text-red-700
                   hover:file:bg-red-100"
                     onChange={(e) => setFile(e.target.files[0])}
+                    required
                   />
                 </label>
 

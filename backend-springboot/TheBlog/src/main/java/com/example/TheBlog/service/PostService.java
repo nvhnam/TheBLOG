@@ -123,16 +123,16 @@ public class PostService implements IPostService {
 
     }
 
-    private PostResponseDTO mapToPostResponseDTO(Object[] row) {
+    private PostResponseDTO mapToPostResponseDTO(Post post) {
         return new PostResponseDTO(
-                (Integer) row[0],
-                (String) row[1],
-                (String) row[2],
-                (String) row[3],
-                ((Timestamp) row[4]).toLocalDateTime(),
-                (String) row[5],
-                (String) row[6],
-                new ArrayList<>(List.of(String.valueOf(row[7])))
+                post.getId(),
+                post.getTitle(),
+                post.getBody(),
+                post.getImage(),
+                post.getCreatedAt(),
+                post.getUser().getUsername(),
+                post.getUser().getImg(),
+                post.getCategories().stream().map(Category::getName).toList()
         );
     }
 

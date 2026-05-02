@@ -36,7 +36,8 @@ const Register = ({ setIsLoading }) => {
         navigate("/register/verify", { state: { email: inputs.email } });
       }
     } catch (error) {
-      setErrors(error.response.data);
+      const errorMessage = error.response?.data?.message || error.response?.data || "An error occurred during registration";
+      setErrors(typeof errorMessage === "string" ? errorMessage : "Check your input and try again");
     } finally {
       setIsLoading(false);
     }

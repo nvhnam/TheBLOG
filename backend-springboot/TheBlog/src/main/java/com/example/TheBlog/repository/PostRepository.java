@@ -1,8 +1,10 @@
 package com.example.TheBlog.repository;
 
 import com.example.TheBlog.model.Post;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
@@ -19,7 +21,11 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             """, nativeQuery = true)
     List<Object[]> findAllPostsWithAuthorAndCategory();
 
+    @EntityGraph(attributePaths = {"user", "categories"})
+    @Query("SELECT p FROM Post p ORDER BY p.createdAt DESC")
+    List<Post> findAllPostsWithAuthorAndCategory();
 
+    @EntityGraph(attributePaths = {"user", "categories"})
     List<Post> findByUserId(Integer id);
 
     @Query(value = """
@@ -57,4 +63,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             """, nativeQuery = true)
     List<Object[]> findLatestPostWithAuthorAndCategory();
 
+    @EntityGraph(attributePaths = {"user", "categories"})
+    Post findTopByOrderByCreatedAtDesc();
 }
+
