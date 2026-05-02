@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: theblog-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    branch: main
+    autoDeploy: true
+    envVars:
+      - key: USE_LOCAL_CONFIG
+        value: "false"
+      - key: DB_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: EMAIL
+        sync: false
+      - key: APP_PASSWORD
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CLOUDAMQP_URL
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: BACKEND_URL
+        sync: false
+      - key: CLOUD_NAME
+        sync: false
+      - key: API_KEY
+        sync: false
+      - key: API_SECRET
+        sync: false
