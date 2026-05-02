@@ -5,14 +5,13 @@ import com.example.TheBlog.DTO.LoginUserDTO;
 import com.example.TheBlog.DTO.RegisterUserDTO;
 import com.example.TheBlog.DTO.VerifyUserDTO;
 import com.example.TheBlog.model.User;
-import com.example.TheBlog.repository.UserRepository;
 import com.example.TheBlog.service.AuthenticationService;
 import com.example.TheBlog.service.JwtService;
+import com.example.TheBlog.utils.AppConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
@@ -50,16 +49,16 @@ public class AuthenticationController {
         if (authentication != null) {
             SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
             logoutHandler.logout(request, response, authentication);
-            return new ResponseEntity<>("Logout successfully", HttpStatus.OK);
+            return new ResponseEntity<>(AppConstants.Messages.LOGOUT_SUCCESS, HttpStatus.OK);
         }
-        return new ResponseEntity<>("Logout unsuccessfully", HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(AppConstants.Messages.LOGOUT_FAILURE, HttpStatus.UNAUTHORIZED);
     }
 
     @PostMapping("/verify")
     public ResponseEntity<?> verifyUser(@RequestBody VerifyUserDTO verifyUserDto) {
         try {
             authenticationService.verifyUser(verifyUserDto);
-            return new ResponseEntity<>("Account verified successfully", HttpStatus.CREATED);
+            return new ResponseEntity<>(AppConstants.Messages.ACCOUNT_VERIFIED, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -69,7 +68,7 @@ public class AuthenticationController {
     public ResponseEntity<?> resendVerificationCode(@RequestBody String email) {
         try {
             authenticationService.resendVerificationCode(email);
-            return new ResponseEntity<>("Verification code sent successfully", HttpStatus.OK);
+            return new ResponseEntity<>(AppConstants.Messages.VERIFICATION_CODE_SENT, HttpStatus.OK);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
+
 
 @RestController
 @CrossOrigin("${CLIENT_URL}")
@@ -27,6 +27,6 @@ public class CategoryController {
     @GetMapping("/all")
     public ResponseEntity<List<Category>> getAllCategory() {
         List<Category> categories = iCategoryService.getAllCategory();
-        return new ResponseEntity<>(categories, HttpStatus.FOUND);
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 }

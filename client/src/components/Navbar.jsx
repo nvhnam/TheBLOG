@@ -7,12 +7,7 @@ import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import Button from "./Button";
-import axios from "axios";
-
-const PORT = import.meta.env.VITE_API_PORT;
-const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
-
-const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
+import api from "../api/api";
 
 const Navbar = ({ setIsLoading }) => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -22,17 +17,8 @@ const Navbar = ({ setIsLoading }) => {
   useEffect(() => {
     const getCategories = async () => {
       try {
-        const res = await axios.get(
-          `${URL || `http://localhost:${PORT}`}/categories/all`,
-          IS_SPRING && {
-            validateStatus: () => {
-              return true;
-            },
-          }
-        );
-        // if (res.status === 302) {
+        const res = await api.get("/categories/all");
         setCategories(res.data);
-        // }
       } catch (error) {
         console.log("Error fetching navbar categories from client: ", error);
       }
