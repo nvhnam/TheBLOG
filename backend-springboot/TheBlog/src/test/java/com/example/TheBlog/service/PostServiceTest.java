@@ -39,7 +39,7 @@ class PostServiceTest {
     CategoryRepository categoryRepository;
 
     @Mock
-    ICloudinaryService iCloudinaryService;
+    IFileStorageService iFileStorageService;
 
     @InjectMocks
     PostService postService;
@@ -94,7 +94,7 @@ class PostServiceTest {
                 Timestamp.valueOf(expectedPost.getCreatedAt()),
                 expectedPost.getAuthorName(),
                 expectedPost.getAuthorImg(),
-                expectedPost.getCategoryName().get(0)
+                expectedPost.getCategoryNames().get(0)
         };
 
         mockDatabaseResult = new ArrayList<>();
@@ -116,7 +116,7 @@ class PostServiceTest {
         assertEquals("This is tech blog body", latestPost.getBody());
         assertNotNull(latestPost.getCreatedAt());
         assertEquals("John", latestPost.getAuthorName());
-        assertEquals(List.of("Technology"), latestPost.getCategoryName());
+        assertEquals(List.of("Technology"), latestPost.getCategoryNames());
 
     }
 
@@ -140,7 +140,7 @@ class PostServiceTest {
 
     @Test
     void createPost_successfully() throws IOException {
-        Mockito.when(iCloudinaryService.upload(mockImage)).thenReturn("url");
+        Mockito.when(iFileStorageService.upload(mockImage)).thenReturn("url");
         Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(mockUser));
         Mockito.when(categoryRepository.findAllById(List.of(1))).thenReturn(mockCategory);
         Mockito.when(postRepository.save(Mockito.any(Post.class))).thenReturn(mockPost);
