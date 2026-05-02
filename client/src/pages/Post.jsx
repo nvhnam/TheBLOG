@@ -78,7 +78,7 @@ const Post = ({ setIsLoading }) => {
             {/* Category Label */}
             <div className="w-full px-4 mt-6 flex justify-end">
               <p className="font-bold italic text-md text-red-400">
-                {Array.isArray(post.categoryName) ? post.categoryName.join(", ") : post.categoryName}
+                {Array.isArray(post.categoryNames) ? post.categoryNames.join(", ") : post.categoryNames}
               </p>
             </div>
           </div>

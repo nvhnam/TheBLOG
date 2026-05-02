@@ -69,13 +69,9 @@ const WritePost = ({ setIsLoading }) => {
       console.log("Sending formData: ", formData);
 
       try {
-        const res = await api.post("/posts/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const res = await api.post("/posts/upload", formData);
 
-        if (res.status === 201) {
+        if (res.status === 201 || res.status === 200) {
           setTitle("");
           setParagraph("");
           setFile(null);
@@ -83,7 +79,8 @@ const WritePost = ({ setIsLoading }) => {
           window.alert("Post uploaded successfully!");
           window.location.reload();
         } else {
-          console.log("Error submitting the form");
+          console.log("Unexpected status code: ", res.status);
+          window.alert("Error submitting the form. Status: " + res.status);
         }
       } catch (error) {
         console.log("Upload error: ", error);
