@@ -10,13 +10,8 @@ import moment from "moment";
 import LatestPost from "../components/LatestPost.jsx";
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/authContext.jsx";
-import axios from "axios";
+import api from "../api/api";
 import { defaultImg } from "../utils/Data.js";
-
-const PORT = import.meta.env.VITE_API_PORT;
-const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
-
-const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
 const Home = ({ setIsLoading }) => {
   const { currentUser } = useContext(AuthContext);
@@ -27,48 +22,36 @@ const Home = ({ setIsLoading }) => {
     const getPosts = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get(
-          `${URL || `http://localhost:${PORT}`}/posts/all`,
-          IS_SPRING && {
-            validateStatus: () => {
-              return true;
-            },
-            credentials: "include",
-            mode: "cors",
+        const res = await api.get("/posts/all/paginated", {
+          params: { page: 0, size: 20, sortBy: "createdAt" }
+        });
+
+        // The endpoint returns sorted data by createdAt descending
+        const sortedPosts = res.data.content;
+
+        setLatestPost(sortedPosts[0]);
+
+        const postsByCategory = sortedPosts.reduce((acc, post) => {
+          // In Spring, categoryNames is a List<String>. For grouping, we'll use the first one.
+          const category = Array.isArray(post.categoryNames)
+            ? post.categoryNames[0]
+            : post.categoryNames;
+          if (!acc[category]) {
+            acc[category] = [];
           }
-        );
-        if (res.status === 302) {
-          const sortedPosts = res.data.sort(
-            (a, b) =>
-              new Date(IS_SPRING ? b.createdAt : b.created_at) -
-              new Date(IS_SPRING ? a.createdAt : a.created_at)
-          );
+          acc[category].push(post);
 
-          setLatestPost(sortedPosts[0]);
-          // console.log("Home res.data: ", res.data);
-          // console.log("Home latestPost: ", sortedPosts);
+          return acc;
+        }, {});
 
-          const postsByCategory = sortedPosts.reduce((acc, post) => {
-            const category = IS_SPRING ? post.categoryName : post.category_name;
-            if (!acc[category]) {
-              acc[category] = [];
-            }
-            acc[category].push(post);
-
+        const filteredPostsByCategory = Object.keys(postsByCategory)
+          .reduce((acc, category) => {
+            acc[category] = postsByCategory[category];
             return acc;
           }, {});
 
-          const filteredPostsByCategory = Object.keys(postsByCategory)
-            .filter((category) => postsByCategory[category].length >= 4)
-            .reduce((acc, category) => {
-              acc[category] = postsByCategory[category];
-              return acc;
-            }, {});
-
-          setGroupedPosts(filteredPostsByCategory);
-        }
-      } catch (error) {
-        console.log("Error fecthing posts: ", error);
+        setGroupedPosts(filteredPostsByCategory);      } catch (error) {
+        console.log("Error fetching posts: ", error);
       } finally {
         setIsLoading(false);
       }
@@ -81,7 +64,6 @@ const Home = ({ setIsLoading }) => {
       <div className="w-full h-full min-h-screen max-w-screen-xl flex flex-col items-center px-4">
         {/* Pagination + Write Post link */}
         <div className="w-full h-1/6 flex flex-row items-end justify-between  border-b-2 border-b-slate-900 pb-3 mt-10">
-          {/* <Link>Home</Link> */}
           <GetPath className="text-slate-900 font-light" />
 
           {currentUser && (
@@ -97,17 +79,14 @@ const Home = ({ setIsLoading }) => {
           )}
         </div>
 
-        {/* Lastest Post Feed */}
+        {/* Latest Post Feed */}
         <LatestPost setIsLoading={setIsLoading} />
 
         {/* Posts Feed */}
         <div className="w-full h-full justify-center items-center ">
           {Object.keys(groupedPosts).map((category) => (
-            <>
-              <div
-                key={category}
-                className="w-full h-full flex items-end justify-between pb-3"
-              >
+            <div key={category}>
+              <div className="w-full h-full flex items-end justify-between pb-3">
                 <h1 className="text-slate-900 font-bold text-2xl">
                   {category}
                 </h1>
@@ -128,13 +107,7 @@ const Home = ({ setIsLoading }) => {
                   >
                     <img
                       className="rounded-lg size-full object-cover max-h-48"
-                      src={
-                        IS_SPRING
-                          ? post.image
-                          : post.image
-                          ? `../upload/${post.image}`
-                          : defaultImg.img
-                      }
+                      src={post.image || defaultImg.img}
                       alt={post.title}
                     />
                     <div className="flex items-center justify-between">
@@ -142,25 +115,16 @@ const Home = ({ setIsLoading }) => {
                         <span className="size-6">
                           <img
                             className="size-full rounded-full rounded object-cover"
-                            src={
-                              IS_SPRING
-                                ? post.authorImg
-                                  ? `../upload/${post.authorImg}`
-                                  : defaultImg.img
-                                : post.author_img
-                                ? `../upload/${post.author_img}`
-                                : defaultImg.img
-                            }
+                            src={post.authorImg || defaultImg.img}
+                            alt={post.authorName}
                           />
                         </span>
                         <p className="text-sm text-slate-600">
-                          {IS_SPRING ? post.authorName : post.author_name}
+                          {post.authorName}
                         </p>
                       </div>
                       <span className="text-sm text-slate-600">
-                        {moment(IS_SPRING ? post.createdAt : post.created_at)
-                          .startOf("minutes")
-                          .fromNow()}
+                        {moment(post.createdAt).startOf("minutes").fromNow()}
                       </span>
                     </div>
                     <div className="flex flex-col gap-3 justify-between h-full">
@@ -179,7 +143,7 @@ const Home = ({ setIsLoading }) => {
                   </Link>
                 ))}
               </div>
-            </>
+            </div>
           ))}
         </div>
       </div>

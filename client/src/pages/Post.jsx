@@ -1,16 +1,11 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import api from "../api/api";
 import { defaultImg } from "../utils/Data";
 import moment from "moment";
 import RecentPosts from "../components/RecentPosts";
-
-const PORT = import.meta.env.VITE_API_PORT;
-const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
-
-const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
 const Post = ({ setIsLoading }) => {
   const [post, setPost] = useState(null);
@@ -20,16 +15,8 @@ const Post = ({ setIsLoading }) => {
     const getPost = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get(
-          `${URL || `http://localhost:${PORT}`}/posts/id/${postId}`,
-          IS_SPRING && {
-            validateStatus: () => {
-              return true;
-            },
-          }
-        );
+        const res = await api.get(`/posts/id/${postId}`);
         setPost(res.data);
-        // console.log("post: ", res.data);
         window.scrollTo({
           top: 0,
           behavior: "smooth",
@@ -42,8 +29,6 @@ const Post = ({ setIsLoading }) => {
     };
     getPost();
   }, [postId, setIsLoading]);
-
-  // console.log("post: ", post);
 
   return (
     <div className="w-full min-h-screen bg-slate-50 flex justify-center">
@@ -59,13 +44,7 @@ const Post = ({ setIsLoading }) => {
             <div className="w-full flex justify-center">
               <img
                 className="w-full max-w-3xl mx-auto my-6 rounded-lg object-cover"
-                src={
-                  IS_SPRING
-                    ? post.image
-                    : post.image
-                    ? `../upload/${post.image}`
-                    : defaultImg.img
-                }
+                src={post.image || defaultImg.img}
                 alt={post.title}
               />
             </div>
@@ -75,19 +54,15 @@ const Post = ({ setIsLoading }) => {
               <div className="flex items-center gap-x-3">
                 <img
                   className="w-10 h-10 rounded-full object-cover"
-                  src={
-                    IS_SPRING
-                      ? post.authorImg || defaultImg.img
-                      : post.author_img || defaultImg.img
-                  }
-                  alt={IS_SPRING ? post.authorName : post.author_name}
+                  src={post.authorImg || defaultImg.img}
+                  alt={post.authorName}
                 />
                 <h3 className="text-lg font-medium">
-                  {IS_SPRING ? post.authorName : post.author_name}
+                  {post.authorName}
                 </h3>
               </div>
               <p className="text-sm text-gray-600 mt-2 sm:mt-0">
-                {moment(IS_SPRING ? post.createdAt : post.created_at)
+                {moment(post.createdAt)
                   .startOf("minutes")
                   .fromNow()}
               </p>
@@ -103,7 +78,7 @@ const Post = ({ setIsLoading }) => {
             {/* Category Label */}
             <div className="w-full px-4 mt-6 flex justify-end">
               <p className="font-bold italic text-md text-red-400">
-                {IS_SPRING ? post.categoryName : post.category_name}
+                {Array.isArray(post.categoryNames) ? post.categoryNames.join(", ") : post.categoryNames}
               </p>
             </div>
           </div>

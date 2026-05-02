@@ -2,45 +2,42 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
-import axios from "axios";
+import api from "../api/api";
 import { defaultImg } from "../utils/Data";
-
-const PORT = import.meta.env.VITE_API_PORT;
-const URL = import.meta.env.VITE_API_URL || `http://localhost:${PORT}`;
-
-const IS_SPRING = import.meta.env.VITE_API_SPRING || false;
 
 const RecentPosts = () => {
   const [recentPosts, setRecentPosts] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     const getPosts = async () => {
       try {
-        const res = await axios.get(
-          `${URL || `http://localhost:${PORT}`}/posts/all`,
-          IS_SPRING && {
-            validateStatus: () => {
-              return true;
-            },
-          }
-        );
-        if (res.status === 302) {
-          const sortedPosts = res.data.sort(
-            (a, b) =>
-              new Date(IS_SPRING ? b.createdAt : b.created_at) -
-              new Date(IS_SPRING ? a.createdAt : a.created_at)
-          );
-          setRecentPosts(sortedPosts.slice(0, 8));
-        }
-        // console.log(recentPosts);
+        const res = await api.get("/posts/all/paginated", {
+          params: { page, size: 8, sortBy: "createdAt" }
+        });
+        setRecentPosts(res.data.content);
+        setTotalPages(res.data.totalPages);
       } catch (error) {
-        console.log("Error fecthing posts: ", error);
+        console.log("Error fetching posts: ", error);
       }
     };
     getPosts();
-  }, []);
+  }, [page]);
 
-  // console.log("RecentPost: ", recentPosts);
+  const handleNext = () => {
+    if (page < totalPages - 1) {
+      setPage(page + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handlePrev = () => {
+    if (page > 0) {
+      setPage(page - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center mt-20">
@@ -56,13 +53,7 @@ const RecentPosts = () => {
           >
             <img
               className="rounded-lg size-full object-cover max-h-48"
-              src={
-                IS_SPRING
-                  ? post.image
-                  : post.image
-                  ? `../upload/${post.image}`
-                  : defaultImg.img
-              }
+              src={post.image || defaultImg.img}
               alt={post.title}
             />
             <div className="flex items-center justify-between">
@@ -70,25 +61,14 @@ const RecentPosts = () => {
                 <span className="size-6">
                   <img
                     className="size-full rounded-full rounded object-cover"
-                    src={
-                      IS_SPRING
-                        ? post.authorImg
-                          ? post.authorImg
-                          : defaultImg.img
-                        : post.author_img
-                        ? post.author_img
-                        : defaultImg.img
-                    }
+                    src={post.authorImg || defaultImg.img}
+                    alt={post.authorName}
                   />
                 </span>
-                <p className="text-sm text-slate-600">
-                  {IS_SPRING ? post.authorName : post.author_name}
-                </p>
+                <p className="text-sm text-slate-600">{post.authorName}</p>
               </div>
               <span className="text-sm text-slate-600">
-                {moment(IS_SPRING ? post.createdAt : post.created_at)
-                  .startOf("minutes")
-                  .fromNow()}
+                {moment(post.createdAt).startOf("minutes").fromNow()}
               </span>
             </div>
             <div className="flex flex-col gap-3 justify-between h-full">
@@ -102,12 +82,33 @@ const RecentPosts = () => {
               </div>
 
               <span className="font-bold text-sm text-red-400">
-                {IS_SPRING ? post.categoryName : post.category_name}
+                {Array.isArray(post.categoryNames)
+                  ? post.categoryNames.join(", ")
+                  : post.categoryNames}
               </span>
             </div>
           </Link>
         ))}
       </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mb-14">
+          <button
+            onClick={handlePrev}
+            disabled={page === 0}
+            className={`px-4 py-2 rounded font-semibold ${page === 0 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-400 text-white hover:bg-red-500 duration-200"}`}
+          >
+            Previous
+          </button>
+          <span className="text-slate-700 font-medium text-sm">Page {page + 1} of {totalPages}</span>
+          <button
+            onClick={handleNext}
+            disabled={page >= totalPages - 1}
+            className={`px-4 py-2 rounded font-semibold ${page >= totalPages - 1 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-400 text-white hover:bg-red-500 duration-200"}`}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };
