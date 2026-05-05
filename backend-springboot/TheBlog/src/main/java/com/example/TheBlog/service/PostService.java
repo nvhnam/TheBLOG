@@ -3,6 +3,7 @@ package com.example.TheBlog.service;
 import com.example.TheBlog.DTO.PostResponseDTO;
 import com.example.TheBlog.DTO.RestPageImpl;
 import com.example.TheBlog.exception.PostNotFoundException;
+import com.example.TheBlog.exception.UserNotFoundException;
 import com.example.TheBlog.model.Category;
 import com.example.TheBlog.model.Post;
 import com.example.TheBlog.model.User;
@@ -171,7 +172,7 @@ public class PostService implements IPostService {
         log.info("Image uploaded to {}", imgUrl);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException(AppConstants.Errors.USER_NOT_FOUND + ": " + userId));
+                .orElseThrow(() -> new UserNotFoundException(AppConstants.Errors.USER_NOT_FOUND + ": " + userId));
 
         List<Category> categories = categoryRepository.findAllById(categoriesId);
         log.debug("Resolved {} categories from IDs {}", categories.size(), categoriesId);

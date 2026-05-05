@@ -4,6 +4,7 @@ import com.example.TheBlog.DTO.EmailMessageDTO;
 import com.example.TheBlog.DTO.LoginUserDTO;
 import com.example.TheBlog.DTO.RegisterUserDTO;
 import com.example.TheBlog.DTO.VerifyUserDTO;
+import com.example.TheBlog.exception.UserNotFoundException;
 import com.example.TheBlog.model.User;
 import com.example.TheBlog.repository.UserRepository;
 import com.example.TheBlog.utils.AppConstants;
@@ -50,7 +51,7 @@ public class AuthenticationService {
                 .orElseThrow(() -> new RuntimeException(AppConstants.Errors.USER_NOT_FOUND));
 
         if (!user.isEnabled()) {
-            throw new RuntimeException(AppConstants.Errors.ACCOUNT_NOT_VERIFIED);
+            throw new IllegalArgumentException(AppConstants.Errors.ACCOUNT_NOT_VERIFIED);
         }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -67,7 +68,7 @@ public class AuthenticationService {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException(AppConstants.Errors.VERIFICATION_CODE_EXPIRED);
+                throw new IllegalArgumentException(AppConstants.Errors.VERIFICATION_CODE_EXPIRED);
             }
             if (user.getVerificationCode().equals(input.getVerificationCode())) {
                 user.setEnabled(true);
@@ -75,10 +76,10 @@ public class AuthenticationService {
                 user.setVerificationCodeExpiresAt(null);
                 userRepository.save(user);
             } else {
-                throw new RuntimeException(AppConstants.Errors.INVALID_VERIFICATION_CODE);
+                throw new IllegalArgumentException(AppConstants.Errors.INVALID_VERIFICATION_CODE);
             }
         } else {
-            throw new RuntimeException(AppConstants.Errors.USER_NOT_FOUND);
+            throw new UserNotFoundException(AppConstants.Errors.USER_NOT_FOUND);
         }
     }
 
@@ -87,14 +88,14 @@ public class AuthenticationService {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (user.isEnabled()) {
-                throw new RuntimeException(AppConstants.Errors.ALREADY_VERIFIED);
+                throw new IllegalArgumentException(AppConstants.Errors.ALREADY_VERIFIED);
             }
             user.setVerificationCode(generateVerificationCode());
             user.setVerificationCodeExpiresAt(LocalDateTime.now().plusHours(1));
             sendVerificationEmail(user);
             userRepository.save(user);
         } else {
-            throw new RuntimeException(AppConstants.Errors.USER_NOT_FOUND);
+            throw new UserNotFoundException(AppConstants.Errors.USER_NOT_FOUND);
         }
     }
 
