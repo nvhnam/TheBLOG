@@ -109,6 +109,7 @@ public final class AppConstants {
         public static final String MIME_TYPE_NOT_ALLOWED = "File type not allowed. Accepted types: JPEG, PNG, WebP";
         public static final String INVALID_SORT_FIELD = "Invalid sort field. Allowed values: createdAt, title, id";
         public static final String USER_IDENTIFIER_NOT_FOUND = "User not found with identifier: ";
+        public static final String INVALID_SORT_FIELD = "Invalid sort field. Allowed values: createdAt, title, id";
         public static final String S3_UPLOAD_FAILED = "Failed to upload to S3: ";
         public static final String S3_CONNECTION_ERROR = "Cannot connect to S3 endpoint. Ensure LocalStack is running: docker-compose up -d";
     }

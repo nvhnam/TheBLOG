@@ -3,6 +3,7 @@ package com.example.TheBlog.controller;
 import com.example.TheBlog.DTO.LoginResponseDTO;
 import com.example.TheBlog.DTO.LoginUserDTO;
 import com.example.TheBlog.DTO.RegisterUserDTO;
+import com.example.TheBlog.DTO.ResendVerificationDTO;
 import com.example.TheBlog.DTO.VerifyUserDTO;
 import com.example.TheBlog.model.User;
 import com.example.TheBlog.service.AuthenticationService;
@@ -10,6 +11,7 @@ import com.example.TheBlog.service.JwtService;
 import com.example.TheBlog.utils.AppConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,13 +32,13 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@RequestBody RegisterUserDTO registerUserDto) {
+    public ResponseEntity<User> register(@Valid @RequestBody RegisterUserDTO registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
         return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> authenticate(@RequestBody LoginUserDTO loginUserDto) {
+    public ResponseEntity<LoginResponseDTO> authenticate(@Valid @RequestBody LoginUserDTO loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
         String jwtToken = jwtService.generateToken(authenticatedUser);
         LoginResponseDTO loginResponse = new LoginResponseDTO(
@@ -57,14 +59,14 @@ public class AuthenticationController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<String> verifyUser(@RequestBody VerifyUserDTO verifyUserDto) {
+    public ResponseEntity<String> verifyUser(@Valid @RequestBody VerifyUserDTO verifyUserDto) {
         authenticationService.verifyUser(verifyUserDto);
         return new ResponseEntity<>(AppConstants.Messages.ACCOUNT_VERIFIED, HttpStatus.CREATED);
     }
 
     @PostMapping("/resend")
-    public ResponseEntity<String> resendVerificationCode(@RequestBody String email) {
-        authenticationService.resendVerificationCode(email);
+    public ResponseEntity<String> resendVerificationCode(@Valid @RequestBody ResendVerificationDTO dto) {
+        authenticationService.resendVerificationCode(dto.getEmail());
         return ResponseEntity.ok(AppConstants.Messages.VERIFICATION_CODE_SENT);
     }
 }

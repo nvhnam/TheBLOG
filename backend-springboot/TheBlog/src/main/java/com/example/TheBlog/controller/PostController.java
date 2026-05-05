@@ -8,6 +8,8 @@ import com.example.TheBlog.model.User;
 import com.example.TheBlog.service.IPostService;
 import com.example.TheBlog.utils.AppConstants;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,16 +18,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 @RequestMapping("/posts")
+@Validated
 public class PostController {
+
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("createdAt", "title", "id");
 
     private final IPostService iPostService;
 
@@ -40,9 +47,12 @@ public class PostController {
 
     @GetMapping("/all/paginated")
     public ResponseEntity<Page<PostResponseDTO>> getAllPosts(
-            @RequestParam(defaultValue = AppConstants.Pagination.DEFAULT_PAGE_NUMBER) int page,
-            @RequestParam(defaultValue = AppConstants.Pagination.DEFAULT_PAGE_SIZE) int size,
+            @RequestParam(defaultValue = AppConstants.Pagination.DEFAULT_PAGE_NUMBER) @Min(0) int page,
+            @RequestParam(defaultValue = AppConstants.Pagination.DEFAULT_PAGE_SIZE) @Min(1) @Max(100) int size,
             @RequestParam(defaultValue = AppConstants.Pagination.DEFAULT_SORT_BY) String sortBy) {
+        if (!ALLOWED_SORT_FIELDS.contains(sortBy)) {
+            throw new IllegalArgumentException(AppConstants.Errors.INVALID_SORT_FIELD);
+        }
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
         return ResponseEntity.ok(iPostService.getAllPostsPaginated(pageable));
     }
