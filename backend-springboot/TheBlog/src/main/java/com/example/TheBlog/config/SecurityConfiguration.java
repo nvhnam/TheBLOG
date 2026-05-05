@@ -19,6 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity
@@ -27,6 +28,7 @@ public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final Optional<RateLimitFilter> rateLimitFilter;
 
     @Value("${CLIENT_URL:http://localhost:5173}")
     private String clientUrl;
@@ -35,9 +37,11 @@ public class SecurityConfiguration {
     private String backendUrl;
 
     public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter,
-                                 AuthenticationProvider authenticationProvider) {
+                                 AuthenticationProvider authenticationProvider,
+                                 Optional<RateLimitFilter> rateLimitFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.authenticationProvider = authenticationProvider;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -67,6 +71,9 @@ public class SecurityConfiguration {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        rateLimitFilter.ifPresent(filter ->
+                http.addFilterBefore(filter, JwtAuthenticationFilter.class));
 
         return http.build();
     }
