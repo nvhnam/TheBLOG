@@ -1,6 +1,8 @@
 package com.example.TheBlog.config;
 
+import com.example.TheBlog.exception.InvalidTokenException;
 import com.example.TheBlog.service.CustomUserDetailsService;
+import com.example.TheBlog.service.ITokenBlacklistService;
 import com.example.TheBlog.service.JwtService;
 import com.example.TheBlog.utils.AppConstants;
 import jakarta.servlet.FilterChain;
@@ -26,13 +28,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtService jwtService;
     private final CustomUserDetailsService customUserDetailsService;
+    private final ITokenBlacklistService tokenBlacklistService;
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
             CustomUserDetailsService customUserDetailsService,
+            ITokenBlacklistService tokenBlacklistService,
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver) {
         this.jwtService = jwtService;
         this.customUserDetailsService = customUserDetailsService;
+        this.tokenBlacklistService = tokenBlacklistService;
         this.handlerExceptionResolver = handlerExceptionResolver;
     }
 
@@ -51,6 +56,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             final String jwt = authHeader.substring(AppConstants.Security.BEARER_PREFIX.length());
+
+            if (tokenBlacklistService.isBlacklisted(jwt)) {
+                throw new InvalidTokenException(AppConstants.Errors.INVALID_TOKEN);
+            }
+
             final String userEmail = jwtService.extractUsername(jwt);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

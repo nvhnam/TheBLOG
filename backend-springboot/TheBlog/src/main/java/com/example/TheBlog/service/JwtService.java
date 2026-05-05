@@ -74,6 +74,12 @@ public class JwtService {
         return builder.signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();
     }
 
+    public long getRemainingTtlSeconds(String token) {
+        Date expiration = extractExpiration(token);
+        long remaining = (expiration.getTime() - System.currentTimeMillis()) / 1000;
+        return Math.max(0, remaining);
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
