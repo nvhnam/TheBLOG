@@ -1,6 +1,8 @@
 package com.example.TheBlog.service;
 
 
+import com.example.TheBlog.model.User;
+import com.example.TheBlog.utils.AppConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,6 +30,14 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public Integer extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get(AppConstants.Tokens.CLAIM_USER_ID, Integer.class));
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get(AppConstants.Tokens.CLAIM_ROLE, String.class));
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -50,13 +60,18 @@ public class JwtService {
             UserDetails userDetails,
             long expiration
     ) {
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
+                .setExpiration(new Date(System.currentTimeMillis() + expiration));
+
+        if (userDetails instanceof User user) {
+            builder.claim(AppConstants.Tokens.CLAIM_USER_ID, user.getId())
+                   .claim(AppConstants.Tokens.CLAIM_ROLE, user.getRole().name());
+        }
+
+        return builder.signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
