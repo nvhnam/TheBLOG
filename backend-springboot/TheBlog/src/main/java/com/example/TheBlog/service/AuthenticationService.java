@@ -6,6 +6,7 @@ import com.example.TheBlog.DTO.RegisterUserDTO;
 import com.example.TheBlog.DTO.VerifyUserDTO;
 import com.example.TheBlog.exception.UserAlreadyExistsException;
 import com.example.TheBlog.exception.UserNotFoundException;
+import com.example.TheBlog.model.Role;
 import com.example.TheBlog.model.User;
 import com.example.TheBlog.repository.UserRepository;
 import com.example.TheBlog.utils.AppConstants;
@@ -46,6 +47,7 @@ public class AuthenticationService {
             throw new UserAlreadyExistsException(AppConstants.Errors.USER_ALREADY_EXISTS + ": " + input.getUsername());
         }
         User user = new User(input.getEmail(), input.getUsername(), passwordEncoder.encode(input.getPassword()), null);
+        user.setRole(Role.USER);
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         user.setEnabled(false);
