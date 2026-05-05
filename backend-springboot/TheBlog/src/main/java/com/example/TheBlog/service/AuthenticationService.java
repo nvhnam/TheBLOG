@@ -4,6 +4,7 @@ import com.example.TheBlog.DTO.EmailMessageDTO;
 import com.example.TheBlog.DTO.LoginUserDTO;
 import com.example.TheBlog.DTO.RegisterUserDTO;
 import com.example.TheBlog.DTO.VerifyUserDTO;
+import com.example.TheBlog.exception.UserAlreadyExistsException;
 import com.example.TheBlog.exception.UserNotFoundException;
 import com.example.TheBlog.model.User;
 import com.example.TheBlog.repository.UserRepository;
@@ -38,6 +39,12 @@ public class AuthenticationService {
     }
 
     public User signup(RegisterUserDTO input) {
+        if (userRepository.findByEmail(input.getEmail()).isPresent()) {
+            throw new UserAlreadyExistsException(AppConstants.Errors.USER_ALREADY_EXISTS + ": " + input.getEmail());
+        }
+        if (userRepository.findByUsername(input.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException(AppConstants.Errors.USER_ALREADY_EXISTS + ": " + input.getUsername());
+        }
         User user = new User(input.getEmail(), input.getUsername(), passwordEncoder.encode(input.getPassword()), null);
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
@@ -48,7 +55,7 @@ public class AuthenticationService {
 
     public User authenticate(LoginUserDTO input) {
         User user = userRepository.findByEmail(input.getEmail())
-                .orElseThrow(() -> new RuntimeException(AppConstants.Errors.USER_NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException(AppConstants.Errors.USER_NOT_FOUND));
 
         if (!user.isEnabled()) {
             throw new IllegalArgumentException(AppConstants.Errors.ACCOUNT_NOT_VERIFIED);
