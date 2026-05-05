@@ -1,10 +1,13 @@
 package com.example.TheBlog.controller;
 
 import com.example.TheBlog.DTO.PostResponseDTO;
+import com.example.TheBlog.DTO.PostUploadRequestDTO;
 import com.example.TheBlog.exception.PostNotFoundException;
 import com.example.TheBlog.model.Post;
+import com.example.TheBlog.model.User;
 import com.example.TheBlog.service.IPostService;
 import com.example.TheBlog.utils.AppConstants;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.Authentication;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -78,15 +81,13 @@ public class PostController {
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Post> uploadPost(@RequestParam("title") String title,
-                                           @RequestParam("userId") Integer userId,
-                                           @RequestParam("body") String body,
-                                           @RequestParam("created_at") String createdAt,
-                                           @RequestParam("img") MultipartFile image,
-                                           @RequestParam("categoriesId") List<Integer> categoriesId) throws IOException {
+    public ResponseEntity<Post> uploadPost(@Valid @ModelAttribute PostUploadRequestDTO dto,
+                                           Authentication authentication) throws IOException {
+        User principal = (User) authentication.getPrincipal();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(AppConstants.DateFormat.POST_CREATED_AT);
-        LocalDateTime parsedCreatedAt = LocalDateTime.parse(createdAt, formatter);
-        Post post = iPostService.createPost(title, userId, body, parsedCreatedAt, image, categoriesId);
+        LocalDateTime parsedCreatedAt = LocalDateTime.parse(dto.getCreated_at(), formatter);
+        Post post = iPostService.createPost(dto.getTitle(), principal.getId(), dto.getBody(),
+                parsedCreatedAt, dto.getImg(), dto.getCategoriesId());
         return new ResponseEntity<>(post, HttpStatus.CREATED);
     }
 }
