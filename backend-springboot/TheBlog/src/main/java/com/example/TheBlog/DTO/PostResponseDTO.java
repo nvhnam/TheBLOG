@@ -17,6 +17,7 @@ public class PostResponseDTO {
     private String body;
     private String image;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String authorName;
     private String authorImg;
     private List<String> categoryNames = new ArrayList<>();

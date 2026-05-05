@@ -68,6 +68,7 @@ public class PostService implements IPostService {
             dto.setBody(post.getBody());
             dto.setImage(post.getImage());
             dto.setCreatedAt(post.getCreatedAt());
+            dto.setUpdatedAt(post.getUpdatedAt());
             dto.setAuthorName(post.getUser().getUsername());
             dto.setAuthorImg(post.getUser().getImg());
             dto.setCategoryNames(post.getCategories().stream()
@@ -132,6 +133,7 @@ public class PostService implements IPostService {
                 post.getBody(),
                 post.getImage(),
                 post.getCreatedAt(),
+                post.getUpdatedAt(),
                 post.getUser().getUsername(),
                 post.getUser().getImg(),
                 post.getCategories().stream().map(Category::getName).toList()
@@ -147,6 +149,7 @@ public class PostService implements IPostService {
                 (String) row[2],
                 (String) row[3],
                 createdAt,
+                null,
                 (String) row[5],
                 (String) row[6],
                 categories
