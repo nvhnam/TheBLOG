@@ -3,6 +3,8 @@ package com.example.TheBlog.utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AppConstants {
 
@@ -63,6 +65,8 @@ public final class AppConstants {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Storage {
         public static final String S3_URL_FORMAT = "%s/%s/%s";
+        public static final Set<String> ALLOWED_MIME_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
+        public static final long MAX_IMAGE_SIZE_BYTES = 10L * 1024 * 1024;
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -89,6 +93,7 @@ public final class AppConstants {
         public static final String INVALID_VERIFICATION_CODE = "Invalid verification code";
         public static final String ALREADY_VERIFIED = "Account is already verified";
         public static final String USER_IDENTIFIER_NOT_FOUND = "User not found with identifier: ";
+        public static final String MIME_TYPE_NOT_ALLOWED = "File type not allowed. Accepted types: JPEG, PNG, WebP";
         public static final String S3_UPLOAD_FAILED = "Failed to upload to S3: ";
         public static final String S3_CONNECTION_ERROR = "Cannot connect to S3 endpoint. Ensure LocalStack is running: docker-compose up -d";
     }

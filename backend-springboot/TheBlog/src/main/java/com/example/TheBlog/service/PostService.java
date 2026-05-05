@@ -2,6 +2,7 @@ package com.example.TheBlog.service;
 
 import com.example.TheBlog.DTO.PostResponseDTO;
 import com.example.TheBlog.DTO.RestPageImpl;
+import com.example.TheBlog.exception.MimeTypeNotAllowedException;
 import com.example.TheBlog.exception.PostNotFoundException;
 import com.example.TheBlog.model.Category;
 import com.example.TheBlog.model.Post;
@@ -167,6 +168,7 @@ public class PostService implements IPostService {
                            MultipartFile image, List<Integer> categoriesId) throws IOException {
         log.info("Creating post '{}' for userId={}", title, userId);
 
+        validateImage(image);
         String imgUrl = iFileStorageService.upload(image);
         log.info("Image uploaded to {}", imgUrl);
 
@@ -187,5 +189,15 @@ public class PostService implements IPostService {
         Post savedPost = postRepository.save(post);
         log.info("Post saved with id={}", savedPost.getId());
         return savedPost;
+    }
+
+    private void validateImage(MultipartFile image) {
+        String contentType = image.getContentType();
+        if (contentType == null || !AppConstants.Storage.ALLOWED_MIME_TYPES.contains(contentType)) {
+            throw new MimeTypeNotAllowedException(AppConstants.Errors.MIME_TYPE_NOT_ALLOWED);
+        }
+        if (image.getSize() > AppConstants.Storage.MAX_IMAGE_SIZE_BYTES) {
+            throw new MimeTypeNotAllowedException("Image size exceeds maximum allowed size of 10MB");
+        }
     }
 }
