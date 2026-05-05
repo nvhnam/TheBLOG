@@ -4,7 +4,9 @@ import com.example.TheBlog.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -14,13 +16,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
 
-
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
@@ -44,10 +46,21 @@ public class SecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
+                        // Public documentation
+                        .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
+                        // Public auth endpoints
                         .requestMatchers(AppConstants.Api.AUTH_BASE).permitAll()
-                        .requestMatchers(AppConstants.Api.CATEGORIES_BASE).permitAll()
-                        .requestMatchers(AppConstants.Api.POST_UPLOAD).authenticated()
-                        .requestMatchers(AppConstants.Api.POSTS_BASE).permitAll()
+                        // Public read-only endpoints
+                        .requestMatchers(HttpMethod.GET, AppConstants.Api.POSTS_BASE).permitAll()
+                        .requestMatchers(HttpMethod.GET, AppConstants.Api.CATEGORIES_BASE).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/posts/*/comments").permitAll()
+                        // All write operations require authentication (ownership enforced in service layer)
+                        .requestMatchers(HttpMethod.POST, "/posts/upload").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/posts/*/comments").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/comments/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -61,13 +74,8 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> origins = new ArrayList<>();
-        origins.add(clientUrl);
-        origins.add(backendUrl);
-        origins.add("http://localhost:8080");
-        origins.add("http://localhost:5173");
-        configuration.setAllowedOrigins(origins);
-        configuration.setAllowedMethods(List.of(AppConstants.Security.ALLOWED_METHODS));
+        configuration.setAllowedOrigins(List.of(clientUrl, backendUrl, "http://localhost:8080", "http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList(AppConstants.Security.ALLOWED_METHODS));
         configuration.setAllowedHeaders(Arrays.asList(
                 AppConstants.Security.AUTH_HEADER,
                 AppConstants.Security.CONTENT_TYPE_HEADER
